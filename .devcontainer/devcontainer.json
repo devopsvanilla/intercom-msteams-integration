@@ -1,0 +1,250 @@
+{
+	"name": "Teams-Intercom Integration Development",
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true
+		}
+	},
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Python Development
+				"ms-python.python",
+				"ms-python.flake8",
+				"ms-python.pylint",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-python.autopep8",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.vscode-jupyter-cell-tags",
+				"ms-toolsai.vscode-jupyter-slideshow",
+				
+				// Code Quality & Linting
+				"charliermarsh.ruff",
+				"ms-python.mypy-type-checker",
+				"tamasfe.even-better-toml",
+				"redhat.vscode-yaml",
+				
+				// Git & GitHub
+				"github.vscode-github-actions",
+				"github.vscode-pull-request-github",
+				"github.copilot",
+				"github.copilot-chat",
+				"eamodio.gitlens",
+				
+				// API Development & Testing
+				"humao.rest-client",
+				"ms-vscode.vscode-json",
+				"rangav.vscode-thunder-client",
+				
+				// Docker & Containers
+				"ms-azuretools.vscode-docker",
+				"ms-vscode-remote.remote-containers",
+				
+				// General Productivity
+				"ms-vscode.vscode-typescript-next",
+				"bradlc.vscode-tailwindcss",
+				"esbenp.prettier-vscode",
+				"streetsidesoftware.code-spell-checker",
+				"ms-vscode.live-server",
+				"formulahendry.auto-rename-tag",
+				"christian-kohler.path-intellisense",
+				
+				// Azure & Microsoft Graph
+				"ms-vscode.azurecli",
+				"ms-azuretools.vscode-azureresourcegroups",
+				"ms-azuretools.vscode-azurefunctions",
+				
+				// Database & Data
+				"mtxr.sqltools",
+				"mtxr.sqltools-driver-sqlite",
+				
+				// Documentation
+				"yzhang.markdown-all-in-one",
+				"davidanson.vscode-markdownlint",
+				"shd101wyy.markdown-preview-enhanced"
+			],
+			
+			"settings": {
+				// Python Configuration
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.mypyEnabled": true,
+				"python.formatting.provider": "black",
+				"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+				"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+				"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+				"python.sortImports.path": "/usr/local/py-utils/bin/isort",
+				
+				// Code Formatting
+				"editor.formatOnSave": true,
+				"editor.formatOnPaste": true,
+				"editor.formatOnType": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": true,
+					"source.fixAll": true,
+					"source.fixAll.eslint": true
+				},
+				
+				// Python-specific formatting
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true,
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": true
+					},
+					"editor.rulers": [88],
+					"editor.tabSize": 4,
+					"editor.insertSpaces": true
+				},
+				
+				// Black formatter settings
+				"black-formatter.args": [
+					"--line-length=88",
+					"--target-version=py311"
+				],
+				
+				// isort settings
+				"isort.args": [
+					"--profile=black",
+					"--line-length=88",
+					"--multi-line=3"
+				],
+				
+				// Pylint settings
+				"pylint.args": [
+					"--max-line-length=88",
+					"--disable=C0111,C0103,R0903,R0913,W0613"
+				],
+				
+				// Flake8 settings
+				"flake8.args": [
+					"--max-line-length=88",
+					"--extend-ignore=E203,W503"
+				],
+				
+				// MyPy settings
+				"mypy-type-checker.args": [
+					"--ignore-missing-imports",
+					"--follow-imports=silent",
+					"--show-column-numbers",
+					"--strict-optional"
+				],
+				
+				// File associations
+				"files.associations": {
+					"*.env.example": "properties",
+					"*.env.local": "properties",
+					"*.env.production": "properties",
+					"*.env.development": "properties",
+					"Dockerfile*": "dockerfile",
+					"docker-compose*.yml": "dockercompose",
+					"docker-compose*.yaml": "dockercompose"
+				},
+				
+				// Git configuration
+				"git.autofetch": true,
+				"git.enableSmartCommit": true,
+				"git.confirmSync": false,
+				"gitlens.advanced.messages": {
+					"suppressCommitHasNoPreviousCommitWarning": true,
+					"suppressCommitNotFoundWarning": true,
+					"suppressFileNotUnderSourceControlWarning": true,
+					"suppressGitVersionWarning": true,
+					"suppressLineUncommittedWarning": true,
+					"suppressNoRepositoryWarning": true
+				},
+				
+				// Terminal configuration
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/bin/zsh"
+					}
+				},
+				
+				// Workspace trust
+				"security.workspace.trust.untrustedFiles": "open",
+				
+				// Explorer
+				"explorer.confirmDelete": false,
+				"explorer.confirmDragAndDrop": false,
+				
+				// Search
+				"search.exclude": {
+					"**/node_modules": true,
+					"**/bower_components": true,
+					"**/*.code-search": true,
+					"**/.venv": true,
+					"**/venv": true,
+					"**/__pycache__": true,
+					"**/*.pyc": true,
+					"**/.pytest_cache": true,
+					"**/.mypy_cache": true,
+					"**/.coverage": true,
+					"**/htmlcov": true
+				},
+				
+				// Files to exclude from file watcher
+				"files.watcherExclude": {
+					"**/.git/objects/**": true,
+					"**/.git/subtree-cache/**": true,
+					"**/node_modules/*/**": true,
+					"**/.venv/**": true,
+					"**/venv/**": true,
+					"**/__pycache__/**": true,
+					"**/.pytest_cache/**": true,
+					"**/.mypy_cache/**": true
+				}
+			}
+		}
+	},
+
+	"forwardPorts": [8000, 8080, 3000, 5000],
+	"portsAttributes": {
+		"8000": {
+			"label": "FastAPI Application",
+			"onAutoForward": "notify"
+		},
+		"8080": {
+			"label": "Alternative Web Server",
+			"onAutoForward": "silent"
+		},
+		"3000": {
+			"label": "Frontend Development",
+			"onAutoForward": "silent"
+		},
+		"5000": {
+			"label": "Flask/Debug Server",
+			"onAutoForward": "silent"
+		}
+	},
+
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"postStartCommand": "bash .devcontainer/post-start.sh",
+
+	"remoteUser": "vscode",
+	"containerUser": "vscode",
+	
+	"mounts": [
+		"source=${localWorkspaceFolder}/.devcontainer/dotfiles,target=/home/vscode/.dotfiles,type=bind,consistency=cached"
+	],
+
+	"remoteEnv": {
+		"PYTHONPATH": "${containerWorkspaceFolder}",
+		"PYTHON_ENV": "development",
+		"DEBIAN_FRONTEND": "noninteractive"
+	}
+}

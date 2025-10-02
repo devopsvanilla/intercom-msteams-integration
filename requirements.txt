@@ -1,0 +1,28 @@
+# Microsoft Graph and Azure dependencies
+msgraph-sdk==1.0.0
+azure-identity==1.15.0
+azure-core==1.29.5
+
+# Web framework for webhooks
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# HTTP client and utilities
+requests==2.31.0
+aiohttp==3.9.1
+
+# Configuration and environment
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Logging and monitoring
+structlog==23.2.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Security
+cryptography==41.0.8
