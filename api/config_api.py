@@ -1,135 +1,155 @@
-"""API endpoints for managing Teams and Channels configuration."""
-
-from fastapi import APIRouter, HTTPException
+import os
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import json
-import os
-from pathlib import Path
 
-router = APIRouter(prefix="/api/config", tags=["configuration"])
+app = FastAPI()
 
-# Configuration file path
-CONFIG_FILE = Path("config/teams_channels_config.json")
+# Configuration file paths
+CONFIG_FILE = ".env"  # For basic environment config
+TEAMS_CONFIG_FILE = Path("config/teams_channels_config.json")  # For multi-teams config
 
+# Pydantic models for basic config
+class ConfigSettings(BaseModel):
+    azure_client_id: Optional[str] = None
+    azure_tenant_id: Optional[str] = None
+    intercom_access_token: Optional[str] = None
+    default_team_id: Optional[str] = None
+    default_channel_name: Optional[str] = None
+
+# Pydantic models for multi-teams config
 class ChannelConfig(BaseModel):
-    """Channel configuration model."""
-    channel_id: str = Field(..., description="Microsoft Teams Channel ID")
-    channel_name: str = Field(..., description="Channel display name")
-    
+    channel_name: str = Field(..., description="Name of the Teams channel")
+    channel_id: Optional[str] = Field(None, description="Teams channel ID")
+    intercom_tag: Optional[str] = Field(None, description="Intercom tag for routing")
+
 class TeamConfig(BaseModel):
-    """Team configuration model."""
-    team_id: str = Field(..., description="Microsoft Teams Team ID")
-    team_name: str = Field(..., description="Team display name")
-    channels: List[ChannelConfig] = Field(default_factory=list, description="List of channels")
+    team_name: str = Field(..., description="Name of the Teams team")
+    team_id: str = Field(..., description="Teams team ID")
+    channels: List[ChannelConfig] = Field(default_factory=list)
 
 class TeamsChannelsConfig(BaseModel):
-    """Complete Teams and Channels configuration."""
-    teams: List[TeamConfig] = Field(default_factory=list, description="List of configured teams")
+    teams: List[TeamConfig] = Field(default_factory=list)
 
-def load_config() -> TeamsChannelsConfig:
-    """Load configuration from file."""
-    if not CONFIG_FILE.exists():
-        CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
-        return TeamsChannelsConfig(teams=[])
-    
-    try:
-        with open(CONFIG_FILE, 'r') as f:
-            data = json.load(f)
-            return TeamsChannelsConfig(**data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load config: {str(e)}")
+# Router for multi-teams configuration
+router = APIRouter(prefix="/api/config", tags=["configuration"])
 
-def save_config(config: TeamsChannelsConfig):
-    """Save configuration to file."""
-    try:
-        CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(CONFIG_FILE, 'w') as f:
-            json.dump(config.model_dump(), f, indent=2)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save config: {str(e)}")
-
-@router.get("/", response_model=TeamsChannelsConfig)
+@app.get("/api/config")
 async def get_config():
-    """Get current Teams and Channels configuration."""
-    return load_config()
+    """Get current configuration settings from .env file"""
+    try:
+        config = {}
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        config[key] = value
+        return config
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/", response_model=TeamsChannelsConfig)
-async def update_config(config: TeamsChannelsConfig):
-    """Update complete Teams and Channels configuration."""
-    save_config(config)
-    return config
+@app.post("/api/config")
+async def update_config(settings: ConfigSettings):
+    """Update configuration settings in .env file"""
+    try:
+        config_dict = {}
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        config_dict[key] = value
+        
+        # Update with new values
+        if settings.azure_client_id:
+            config_dict['AZURE_CLIENT_ID'] = settings.azure_client_id
+        if settings.azure_tenant_id:
+            config_dict['AZURE_TENANT_ID'] = settings.azure_tenant_id
+        if settings.intercom_access_token:
+            config_dict['INTERCOM_ACCESS_TOKEN'] = settings.intercom_access_token
+        if settings.default_team_id:
+            config_dict['DEFAULT_TEAM_ID'] = settings.default_team_id
+        if settings.default_channel_name:
+            config_dict['DEFAULT_CHANNEL_NAME'] = settings.default_channel_name
+        
+        # Write back to file
+        with open(CONFIG_FILE, 'w') as f:
+            for key, value in config_dict.items():
+                f.write(f"{key}={value}\n")
+        
+        return {"status": "success", "message": "Configuration updated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/teams", response_model=TeamConfig)
-async def add_team(team: TeamConfig):
-    """Add a new team to configuration."""
-    config = load_config()
-    
-    # Check if team already exists
-    for existing_team in config.teams:
-        if existing_team.team_id == team.team_id:
-            raise HTTPException(status_code=400, detail="Team already exists")
-    
-    config.teams.append(team)
-    save_config(config)
-    return team
+@router.get("/teams")
+async def get_teams_config():
+    """Get multi-teams and channels configuration from JSON file"""
+    try:
+        if not TEAMS_CONFIG_FILE.exists():
+            return {"teams": []}
+        
+        with open(TEAMS_CONFIG_FILE, 'r') as f:
+            config_data = json.load(f)
+        return config_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read teams config: {str(e)}")
 
-@router.put("/teams/{team_id}", response_model=TeamConfig)
-async def update_team(team_id: str, team: TeamConfig):
-    """Update an existing team configuration."""
-    config = load_config()
-    
-    for i, existing_team in enumerate(config.teams):
-        if existing_team.team_id == team_id:
-            config.teams[i] = team
-            save_config(config)
-            return team
-    
-    raise HTTPException(status_code=404, detail="Team not found")
+@router.post("/teams")
+async def update_teams_config(config: TeamsChannelsConfig):
+    """Update multi-teams and channels configuration in JSON file"""
+    try:
+        # Ensure config directory exists
+        TEAMS_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write configuration to JSON file
+        with open(TEAMS_CONFIG_FILE, 'w') as f:
+            json.dump(config.dict(), f, indent=2)
+        
+        return {"status": "success", "message": "Teams configuration updated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update teams config: {str(e)}")
 
-@router.delete("/teams/{team_id}")
-async def delete_team(team_id: str):
-    """Delete a team from configuration."""
-    config = load_config()
-    
-    for i, team in enumerate(config.teams):
-        if team.team_id == team_id:
-            config.teams.pop(i)
-            save_config(config)
-            return {"message": "Team deleted successfully"}
-    
-    raise HTTPException(status_code=404, detail="Team not found")
+@router.post("/teams/{team_id}/channels")
+async def add_channel_to_team(team_id: str, channel: ChannelConfig):
+    """Add a new channel to an existing team configuration"""
+    try:
+        config_data = {"teams": []}
+        if TEAMS_CONFIG_FILE.exists():
+            with open(TEAMS_CONFIG_FILE, 'r') as f:
+                config_data = json.load(f)
+        
+        # Find the team and add channel
+        team_found = False
+        for team in config_data["teams"]:
+            if team["team_id"] == team_id:
+                team["channels"].append(channel.dict())
+                team_found = True
+                break
+        
+        if not team_found:
+            raise HTTPException(status_code=404, detail=f"Team {team_id} not found")
+        
+        # Write back to file
+        with open(TEAMS_CONFIG_FILE, 'w') as f:
+            json.dump(config_data, f, indent=2)
+        
+        return {"status": "success", "message": "Channel added to team"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/teams/{team_id}/channels", response_model=ChannelConfig)
-async def add_channel(team_id: str, channel: ChannelConfig):
-    """Add a channel to a team."""
-    config = load_config()
-    
-    for team in config.teams:
-        if team.team_id == team_id:
-            # Check if channel already exists
-            for existing_channel in team.channels:
-                if existing_channel.channel_id == channel.channel_id:
-                    raise HTTPException(status_code=400, detail="Channel already exists")
-            
-            team.channels.append(channel)
-            save_config(config)
-            return channel
-    
-    raise HTTPException(status_code=404, detail="Team not found")
+# Include the router for multi-teams endpoints
+app.include_router(router)
 
-@router.delete("/teams/{team_id}/channels/{channel_id}")
-async def delete_channel(team_id: str, channel_id: str):
-    """Delete a channel from a team."""
-    config = load_config()
-    
-    for team in config.teams:
-        if team.team_id == team_id:
-            for i, channel in enumerate(team.channels):
-                if channel.channel_id == channel_id:
-                    team.channels.pop(i)
-                    save_config(config)
-                    return {"message": "Channel deleted successfully"}
-            raise HTTPException(status_code=404, detail="Channel not found")
-    
-    raise HTTPException(status_code=404, detail="Team not found")
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
