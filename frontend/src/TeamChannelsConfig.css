@@ -1,0 +1,275 @@
+.teams-channels-config {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.teams-channels-config h1 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2em;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.error-message {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: none;
+  border: none;
+  color: #c33;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.config-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn-primary, .btn-secondary, .btn-success, .btn-edit, .btn-danger, .btn-danger-sm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #0366d6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0256c2;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-edit {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.btn-edit:hover {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-danger-sm {
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 10px;
+  font-size: 0.9em;
+}
+
+.btn-danger-sm:hover {
+  background-color: #c82333;
+}
+
+.add-team-form, .add-channel-form {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.add-team-form h3, .add-channel-form h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.add-team-form input, .add-channel-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+
+.add-team-form input:focus, .add-channel-form input:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 2px rgba(3, 102, 214, 0.1);
+}
+
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+}
+
+.empty-state p {
+  font-size: 1.1em;
+  margin: 0;
+}
+
+.team-card {
+  background-color: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e1e4e8;
+}
+
+.team-info h2 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 1.5em;
+}
+
+.team-id {
+  color: #6c757d;
+  font-size: 0.9em;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.team-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.channels-list {
+  margin-top: 20px;
+}
+
+.channels-list h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.channels-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.channel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.channel-item:hover {
+  background-color: #e9ecef;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.channel-info strong {
+  color: #333;
+  font-size: 1em;
+}
+
+.channel-id {
+  color: #6c757d;
+  font-size: 0.85em;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.no-channels {
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .team-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .team-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .team-actions button {
+    width: 100%;
+  }
+
+  .config-header {
+    flex-direction: column;
+  }
+
+  .config-header button {
+    width: 100%;
+  }
+}
