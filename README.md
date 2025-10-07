@@ -1,297 +1,163 @@
 # Teams-Intercom Integration
 
-Uma aplicação Python completa para integrar Microsoft Teams com Intercom FIN AI usando Microsoft Graph API, proporcionando automação de atendimento ao cliente com comunicação bidirecional.
+Aplicação que integra Microsoft Teams com Intercom FIN AI usando FastAPI (backend) e React (frontend) para automação de atendimento, com interface web de configuração e suporte a múltiplas equipes e canais.
 
-## 🚀 Funcionalidades
+## 🚀 Novidades deste release
+- Interface Web de Configuração (React) com suporte a múltiplos Teams/Channels
+- API de Configuração (FastAPI) com persistência em arquivo/JSON e validações
+- Sincronização bidirecional Intercom ↔ Teams
+- Melhorias de logging, tratamento de erros e testes
 
-### Integração Microsoft Teams
-- ✅ Autenticação OAuth 2.0 com Azure AD
-- ✅ Gerenciamento de equipes e canais
-- ✅ Envio e recebimento de mensagens
-- ✅ Criação automática de canais
+## 🖥️ Interface Web de Configuração
+A UI (frontend/) permite gerenciar:
+- Múltiplas equipes do Microsoft Teams e seus canais
+- Mapeamentos Intercom → Team/Channel
+- Tokens/segredos (somente leitura, edição via .env)
+- Testes rápidos de conectividade e webhooks
 
-### Integração Intercom FIN AI
-- ✅ Processamento de conversas
-- ✅ Integração com webhooks
-- ✅ Suporte ao FIN AI para respostas automatizadas
-- ✅ Gerenciamento de usuários e tickets
+URLs padrão (dev):
+- Frontend: http://localhost:5173 (Vite) ou http://localhost:3000
+- Backend: http://localhost:8000
 
-### Recursos Avançados
-- ✅ Processamento assíncrono de webhooks
-- ✅ Retry logic para chamadas API
-- ✅ Logging estruturado
-- ✅ Validação de assinatura de webhooks
-- ✅ Rate limiting e tratamento de erros
+Principais telas:
+- Dashboard: visão geral de status (Graph, Intercom, Webhooks)
+- Teams & Channels: listar/adicionar/remover e definir mapeamentos
+- Webhooks: validar assinatura e simular eventos
+- Settings: variáveis de ambiente e caminhos de persistência
+
+## 📦 Estrutura do Projeto
+```
+├── api/                  # Endpoints FastAPI (config, teams, intercom, webhooks)
+├── frontend/             # UI React (Vite)
+│   └── src/              # App.jsx, componentes e serviços
+├── main.py               # App FastAPI, montagem de routers e CORS
+├── graph_client.py       # Cliente Microsoft Graph API
+├── intercom_client.py    # Cliente Intercom API
+├── webhook_handler.py    # Handlers e verificação de assinatura
+├── config.py             # Carregamento .env e camada de persistência
+├── .env.example          # Variáveis de ambiente
+└── tests/                # Testes de API e integração
+```
 
 ## 📋 Pré-requisitos
+- Python 3.10+ (recomendado)
+- Node.js 18+ e npm/yarn/pnpm
+- Conta Azure AD com permissões para app registration
+- Token de API do Intercom e webhook secret
 
-### Azure AD App Registration
-1. Registre uma aplicação no Azure Portal
-2. Configure as seguintes permissões da Microsoft Graph API:
-   - `User.Read`
-   - `Team.ReadWrite.All`
-   - `Channel.ReadWrite.All`
-   - `Chat.ReadWrite`
-   - `ChannelMessage.Send`
-
-### Intercom Setup
-1. Obtenha um Access Token da API do Intercom
-2. Configure webhooks no Intercom apontando para sua aplicação
-3. Obtenha o webhook secret para validação de assinatura
-
-### Python Requirements
-- Python 3.8+
-- Dependências listadas em `requirements.txt`
+Permissões Microsoft Graph (delegadas ou application, conforme cenário):
+- User.Read
+- Team.ReadWrite.All
+- Channel.ReadWrite.All
+- Chat.ReadWrite
+- ChannelMessage.Send
 
 ## 🛠️ Instalação
-
-### 1. Clone o Repositório
+### 1) Clonar repositório
 ```bash
 git clone https://github.com/devopsvanilla/intercom-msteams-integration.git
 cd intercom-msteams-integration
 ```
 
-### 2. Crie um Ambiente Virtual
+### 2) Backend (FastAPI)
+Crie virtualenv e instale dependências:
 ```bash
-python -m venv venv
-
-# Linux/Mac
-source venv/bin/activate
-
-# Windows
-venv\Scripts\activate
-```
-
-### 3. Instale as Dependências
-```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
-
-### 4. Configure as Variáveis de Ambiente
+Copie e edite variáveis:
 ```bash
 cp .env.example .env
-# Edite o arquivo .env com suas credenciais
+# Edite .env com credenciais Azure/Intercom e opções de CORS
 ```
-
-### 5. Configure o arquivo .env
-```env
-# Azure AD Configuration
-AZURE_CLIENT_ID=your-azure-app-client-id
-AZURE_CLIENT_SECRET=your-azure-app-client-secret
-AZURE_TENANT_ID=your-azure-tenant-id
-
-# Intercom Configuration
-INTERCOM_ACCESS_TOKEN=your-intercom-access-token
-INTERCOM_WEBHOOK_SECRET=your-intercom-webhook-secret
-
-# Teams Integration Settings
-DEFAULT_TEAM_ID=your-default-teams-team-id
-DEFAULT_CHANNEL_NAME=Customer Support
-```
-
-## 🚀 Execução
-
-### Desenvolvimento
+Execute em dev com autoreload:
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Produção
+### 3) Frontend (React + Vite)
+Instale e rode:
 ```bash
-python main.py
+cd frontend
+npm install
+# Configure variável VITE_API_BASE se necessário (padrão: http://localhost:8000)
+npm run dev  # inicia em http://localhost:5173
 ```
 
-A aplicação estará disponível em `http://localhost:8000`
+## ▶️ Demonstração de Uso
+1) Abra o frontend e verifique o status do backend (badge “Healthy”).
+2) Em “Teams & Channels”, clique em “Sincronizar” para listar equipes e canais via Microsoft Graph.
+3) Configure mapeamentos: Intercom Inbox/Tag → Team/Channel.
+4) Em “Webhooks”, use “Simular evento” para enviar conversation.user.created ao backend.
+5) Envie uma mensagem do Intercom e confirme o espelhamento no canal do Teams configurado.
 
-## 📡 Endpoints da API
+## 📡 Principais Endpoints
+- GET /health — Status da aplicação
+- GET /teams — Lista equipes
+- GET /teams/{team_id}/channels — Lista canais
+- POST /teams/{team_id}/channels — Cria canal
+- POST /teams/{team_id}/channels/{channel_id}/messages — Envia mensagem
+- GET /intercom/conversations — Lista conversas Intercom
+- POST /sync/conversation-to-teams — Espelha conversa para Teams
+- POST /webhooks/intercom — Recebe webhooks do Intercom
+- GET/POST /config — Lê/grava configurações (multi-teams/channels)
 
-### Health Check
-- `GET /` - Status da aplicação
-- `GET /health` - Health check detalhado
+## 🔐 Variáveis de Ambiente (.env)
+Azure AD:
+- AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID
 
-### Microsoft Teams
-- `GET /teams` - Listar todas as equipes
-- `GET /teams/{team_id}/channels` - Listar canais de uma equipe
-- `POST /teams/{team_id}/channels` - Criar novo canal
-- `POST /teams/{team_id}/channels/{channel_id}/messages` - Enviar mensagem
-- `GET /teams/{team_id}/channels/{channel_id}/messages` - Obter mensagens
+Intercom:
+- INTERCOM_ACCESS_TOKEN, INTERCOM_WEBHOOK_SECRET
 
-### Intercom
-- `GET /intercom/conversations` - Listar conversas do Intercom
-- `POST /sync/conversation-to-teams` - Sincronizar conversa para Teams
-- `POST /teams/message-from-intercom` - Encaminhar mensagem do Teams para Intercom
+App/Integração:
+- DEFAULT_TEAM_ID, DEFAULT_CHANNEL_NAME
+- CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+- CONFIG_STORE_PATH=./config_store.json
 
-### Webhooks
-- `POST /webhooks/intercom` - Receber webhooks do Intercom
-
-## 🔄 Fluxo de Integração
-
-### 1. Intercom → Teams
-1. Cliente envia mensagem no Intercom
-2. Webhook é disparado para a aplicação
-3. Aplicação processa o evento
-4. FIN AI pode gerar resposta sugerida
-5. Notificação é enviada para o canal Teams configurado
-
-### 2. Teams → Intercom
-1. Mensagem é enviada via API para endpoint específico
-2. Aplicação cria/atualiza conversa no Intercom
-3. Mensagem é associada ao usuário correto
-
-## 📝 Eventos de Webhook Suportados
-
-- `conversation.user.created` - Nova conversa criada
-- `conversation.user.replied` - Cliente respondeu
-- `conversation.admin.replied` - Admin respondeu
-- `conversation.admin.assigned` - Conversa atribuída
-- `conversation.admin.closed` - Conversa fechada
-
-## 🏗️ Arquitetura
-
-```
-├── config.py              # Configuração e variáveis de ambiente
-├── graph_client.py         # Cliente Microsoft Graph API
-├── intercom_client.py      # Cliente Intercom API
-├── webhook_handler.py      # Processador de webhooks
-├── main.py                # Aplicação FastAPI principal
-├── requirements.txt       # Dependências Python
-├── .env.example          # Exemplo de variáveis de ambiente
-└── README.md             # Este arquivo
-```
-
-### Componentes Principais
-
-#### GraphClient
-- Gerencia autenticação com Azure AD
-- Operações de Teams (canais, mensagens, equipes)
-- Implementa retry logic e tratamento de erros
-
-#### IntercomClient
-- Cliente assíncrono para API do Intercom
-- Suporte a conversas, usuários e FIN AI
-- Context manager para gerenciamento de sessão
-
-#### WebhookHandler
-- Processa eventos do Intercom
-- Verifica assinatura de webhooks
-- Roteia eventos para handlers específicos
-
-#### Main Application
-- Servidor FastAPI com endpoints REST
-- Processamento assíncrono de webhooks
-- Logging estruturado e monitoramento
-
-## 🔧 Configuração Avançada
-
-### Logging
-O sistema usa `structlog` para logging estruturado em JSON. Logs incluem:
-- Timestamp ISO
-- Nível de log
-- Nome do logger
-- Contexto estruturado
-
-### Rate Limiting
-- Implementado retry logic para APIs
-- Tratamento de rate limits do Microsoft Graph
-- Backoff exponencial em caso de falhas
-
-### Segurança
-- Validação de assinatura de webhooks
-- Credenciais armazenadas em variáveis de ambiente
-- Autenticação OAuth 2.0 com Azure AD
-
-## 🧪 Testes
-
-### Executar Testes
-```bash
-pytest
-```
-
-### Testes de Webhook
-```bash
-# Teste manual de webhook
-curl -X POST http://localhost:8000/webhooks/intercom \
-  -H "Content-Type: application/json" \
-  -H "X-Hub-Signature-256: sha256=your-signature" \
-  -d '{"topic": "conversation.user.created", "data": {...}}'
-```
+Frontend (opcional):
+- frontend/.env: VITE_API_BASE=http://localhost:8000
 
 ## 🐛 Troubleshooting
+1) Permissões/Consent no Azure AD
+- Erro: 403/insufficient privileges
+- Ação: conceda admin consent às permissões Graph e reautentique.
 
-### Erros Comuns
+2) CORS ao acessar API do frontend
+- Erro: “CORS policy blocked request”
+- Ação: defina CORS_ORIGINS no .env do backend incluindo a URL do frontend, reinicie.
 
-#### 1. Falha de Autenticação Azure AD
-```
-Erro: Authentication failed
-Solução: Verifique AZURE_CLIENT_ID, AZURE_CLIENT_SECRET e AZURE_TENANT_ID
-```
+3) Persistência de configuração não salva
+- Ação: verifique CONFIG_STORE_PATH (permissões de escrita, caminho relativo/absoluto). Confirme se POST /config retorna 200 e o arquivo é atualizado.
 
-#### 2. Webhook Signature Invalid
-```
-Erro: Invalid webhook signature
-Solução: Verifique INTERCOM_WEBHOOK_SECRET
-```
+4) Webhook signature inválida
+- Ação: confirme INTERCOM_WEBHOOK_SECRET e o cabeçalho X-Hub-Signature-256. Verifique relógio/UTF-8 ao calcular HMAC.
 
-#### 3. Teams Channel Not Found
-```
-Erro: Failed to get channels for team
-Solução: Verifique se DEFAULT_TEAM_ID está correto e se o bot tem acesso
-```
+5) Autoreload não funciona
+- Backend: use `uvicorn main:app --reload`; verifique se está rodando no ambiente virtual correto.
+- Frontend: `npm run dev`; se a porta conflitar, export VITE_PORT=5173 ou use `--port`.
 
-### Debug Mode
+6) Falhas ao listar canais/teams
+- Ação: garanta que o app/bot esteja no tenant e com acesso às equipes; valide DEFAULT_TEAM_ID.
+
+7) Erros 429/limite de taxa
+- Ação: aguarde backoff exponencial interno; reduza paralelismo e reintente.
+
+Logs estruturados: habilite nível DEBUG para diagnósticos detalhados.
+
+## 🧪 Testes
 ```bash
-# Executar em modo debug
-DEBUG=true python main.py
+pytest
+# Exemplo webhook manual
+curl -X POST http://localhost:8000/webhooks/intercom \
+  -H "Content-Type: application/json" \
+  -H "X-Hub-Signature-256: sha256=..." \
+  -d '{"topic":"conversation.user.created","data":{}}'
 ```
 
-## 📊 Monitoramento
-
-### Health Check
-```bash
-curl http://localhost:8000/health
-```
-
-### Logs Estruturados
-```json
-{
-  "timestamp": "2025-01-01T10:00:00.000Z",
-  "level": "info",
-  "logger": "webhook_handler",
-  "event": "Processing webhook event: conversation.user.created",
-  "conversation_id": "12345"
-}
-```
-
-## 🔮 Próximos Passos
-
-### Melhorias Planejadas
-- [ ] Interface web para configuração
-- [ ] Suporte a múltiplas equipes Teams
-- [ ] Cache Redis para melhor performance
-- [ ] Métricas e dashboards
-- [ ] Suporte a anexos e imagens
-- [ ] Integração com Azure Key Vault
-
-### Contribuições
-Contribuições são bem-vindas! Por favor:
-1. Fork o repositório
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Abra um Pull Request
+## 🤝 Contribuição
+- Abra issues/PRs. Siga Conventional Commits quando possível.
+- Execute linters/tests antes do PR.
 
 ## 📄 Licença
-
-Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-## 🆘 Suporte
-
-Para suporte e dúvidas:
-- Abra uma issue no GitHub
-- Consulte a documentação oficial:
-  - [Microsoft Graph API](https://docs.microsoft.com/en-us/graph/)
-  - [Intercom API](https://developers.intercom.com/)
-  - [FastAPI](https://fastapi.tiangolo.com/)
-
----
-
-**Desenvolvido com ❤️ por DevOps Vanilla**
+MIT. Veja LICENSE.
