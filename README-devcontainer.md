@@ -244,6 +244,35 @@ project_status
 docker logs <container_id>
 ```
 
+### Problemas de autenticação Git
+
+Se você tiver problemas de permissão ao fazer push (erro 403), mesmo estando autenticado no GitHub CLI:
+
+```bash
+# Verificar conta ativa
+gh auth status
+
+# Mudar conta se necessário
+gh auth switch
+
+# Configurar Git para usar GitHub CLI
+gh auth setup-git
+
+# Limpar credenciais antigas em cache
+echo "url=https://github.com" | git credential reject
+
+# Se persistir, usar token diretamente (temporário)
+gh auth token  # copiar o token
+git credential approve <<< "protocol=https
+host=github.com
+username=seu-usuario-github
+password=seu-token-copiado"
+```
+
+**Causa:** O Git pode manter credenciais antigas em cache, mesmo após mudança de conta no GitHub CLI.
+
+**Prevenção:** Sempre execute `gh auth setup-git` após mudar de conta.
+
 ### Reconstruir completamente
 
 ```bash
