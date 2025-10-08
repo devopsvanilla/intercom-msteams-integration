@@ -388,7 +388,16 @@ tramp
 Dockerfile.local
 docker-compose.override.yml
 docker-compose.local.yml
-.dockerignore
+
+# Container data and volumes
+data/
+logs/
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
+# Backups
+backups/
 
 # Container logs
 *.log

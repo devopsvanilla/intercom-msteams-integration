@@ -55,7 +55,9 @@
 				"mtxr.sqltools-driver-sqlite",
 				"yzhang.markdown-all-in-one",
 				"davidanson.vscode-markdownlint",
-				"shd101wyy.markdown-preview-enhanced"
+				"shd101wyy.markdown-preview-enhanced",
+				"ms-azuretools.vscode-azure-github-copilot",
+				"ms-vscode.makefile-tools"
 			],
 
 			"settings": {
