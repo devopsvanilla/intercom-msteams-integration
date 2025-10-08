@@ -37,10 +37,22 @@ sudo apt-get install -y \
 echo "🐍 Installing Python development tools..."
 pip install --upgrade pip setuptools wheel
 
-# Install project dependencies
-echo "📚 Installing project dependencies..."
+# Install project dependencies (with error handling)
+echo "📚 Setting up dependency installation (manual step required)..."
 if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
+    echo "ℹ️  Dependencies can be installed later with: pip install -r requirements.txt"
+    echo "ℹ️  Or use: make install"
+    # Create a convenience script for dependency installation
+    cat > install_deps.sh << 'EOF'
+#!/bin/bash
+echo "📚 Installing project dependencies..."
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+echo "✅ Dependencies installed successfully!"
+EOF
+    chmod +x install_deps.sh
+else
+    echo "⚠️  No requirements.txt found"
 fi
 
 # Install development dependencies
@@ -103,10 +115,26 @@ mkdir -p \
     scripts \
     data
 
-# Setup Python virtual environment (even though we're in a container)
+# Create virtual environment setup script (for manual execution)
+echo "🌍 Creating virtual environment setup script..."
+cat > setup_venv.sh << 'EOF'
+#!/bin/bash
 echo "🌍 Setting up Python virtual environment..."
 python -m venv .venv
 source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
+
+if [ -f "requirements.txt" ]; then
+    echo "📚 Installing dependencies..."
+    pip install -r requirements.txt
+fi
+
+echo "✅ Virtual environment setup complete!"
+echo "💡 To activate: source .venv/bin/activate"
+EOF
+chmod +x setup_venv.sh
+
+echo "ℹ️  Virtual environment can be created later with: ./setup_venv.sh"
 
 # Install project in development mode
 if [ -f "setup.py" ]; then
@@ -467,7 +495,20 @@ help:
 	@echo "  dev         Run development server"
 
 install:
+	pip install --upgrade pip setuptools wheel
 	pip install -r requirements.txt
+
+install-dev: install
+	pip install -e .
+
+setup-venv:
+	python -m venv .venv
+	@echo "Virtual environment created. Activate with: source .venv/bin/activate"
+
+clean-deps:
+	pip freeze | grep -v "^-e" | xargs pip uninstall -y
+
+reinstall: clean-deps install
 
 test:
 	pytest -v --cov=. --cov-report=html

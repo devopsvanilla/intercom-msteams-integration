@@ -126,7 +126,7 @@ const TeamChannelsConfig = () => {
   return (
     <div className="teams-channels-config">
       <h1>Teams & Channels Configuration</h1>
-      
+
       {error && (
         <div className="error-message">
           <strong>Error:</strong> {error}
@@ -135,8 +135,8 @@ const TeamChannelsConfig = () => {
       )}
 
       <div className="config-header">
-        <button 
-          className="btn-primary" 
+        <button
+          className="btn-primary"
           onClick={() => setShowAddTeam(!showAddTeam)}
         >
           {showAddTeam ? 'Cancel' : '+ Add Team'}
@@ -181,13 +181,13 @@ const TeamChannelsConfig = () => {
                   <span className="team-id">ID: {team.team_id}</span>
                 </div>
                 <div className="team-actions">
-                  <button 
+                  <button
                     className="btn-edit"
                     onClick={() => setEditingTeam(editingTeam === team.team_id ? null : team.team_id)}
                   >
                     {editingTeam === team.team_id ? 'Close' : '+ Add Channel'}
                   </button>
-                  <button 
+                  <button
                     className="btn-danger"
                     onClick={() => handleDeleteTeam(team.team_id)}
                   >
@@ -211,7 +211,7 @@ const TeamChannelsConfig = () => {
                     value={newChannel.channel_name}
                     onChange={(e) => setNewChannel({ ...newChannel, channel_name: e.target.value })}
                   />
-                  <button 
+                  <button
                     className="btn-success"
                     onClick={() => handleAddChannel(team.team_id)}
                   >

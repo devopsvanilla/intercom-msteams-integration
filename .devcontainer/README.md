@@ -1,225 +1,186 @@
-# Teams-Intercom Integration DevContainer
+# Teams-Intercom Integration Development Container
 
-Este diretório contém a configuração completa do DevContainer para o projeto Teams-Intercom Integration.
+This development container provides a complete Python development environment for the Teams-Intercom Integration project.
 
-## 📁 Estrutura
+## Quick Start
 
-```
-.devcontainer/
-├── devcontainer.json    # Configuração principal do container
-├── post-create.sh       # Script executado após criação do container
-├── post-start.sh        # Script executado a cada inicialização
-├── dotfiles/           # Configurações personalizadas do shell
-│   ├── .bashrc         # Configuração do Bash
-│   └── .zshrc          # Configuração do ZSH
-└── README.md           # Este arquivo
-```
+After the container is created, follow these steps:
 
-## 🚀 Funcionalidades Incluídas
+### 1. Install Dependencies
 
-### 🐍 **Desenvolvimento Python**
-- Python 3.11 com pip, setuptools e wheel
-- Virtual environment automático
-- Extensões VS Code para Python, debugging e linting
-- Ferramentas de formatação: Black, isort
-- Linting: Flake8, Pylint, Ruff
-- Type checking: MyPy
-- Testing: pytest com coverage
-- Security: Bandit, Safety
-
-### 🔧 **Ferramentas de Desenvolvimento**
-- **GitHub CLI** - Para integração completa com GitHub
-- **Git** com configuração automática
-- **Docker** - Para containerização
-- **Pre-commit hooks** - Para qualidade de código
-- **ZSH + Oh My Zsh** - Shell aprimorado
-
-### 📊 **VS Code Extensões**
-- **Python Development:** Python, Pylint, Black, isort, MyPy
-- **Git & GitHub:** GitLens, GitHub Actions, Pull Requests
-- **API Development:** Thunder Client, REST Client
-- **Code Quality:** Ruff, YAML, TOML support
-- **Documentation:** Markdown tools
-- **Azure & Microsoft Graph:** Azure CLI, Azure Functions
-
-### 🔨 **Automação**
-- **Make commands** para tarefas comuns
-- **Tasks.json** configurado para VS Code
-- **Launch.json** para debugging
-- **Aliases** úteis para desenvolvimento
-- **Auto-ativação** do ambiente virtual
-
-## 🎯 **Comandos Úteis**
-
-### Make Commands
 ```bash
-make help       # Mostrar todos os comandos
-make install    # Instalar dependências
-make dev        # Executar servidor de desenvolvimento
-make test       # Executar testes
-make lint       # Executar linting
-make format     # Formatar código
-make typecheck  # Verificação de tipos
-make security   # Verificações de segurança
-make clean      # Limpar arquivos de cache
+# Option 1: Use the convenience script
+./install_deps.sh
+
+# Option 2: Use make
+make install
+
+# Option 3: Manual installation
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
 ```
 
-### Aliases Personalizados
+### 2. (Optional) Set up Virtual Environment
+
+If you prefer to use a virtual environment within the container:
+
 ```bash
-# Python
-py              # python
-pip             # python -m pip
-pytest          # python -m pytest
+# Use the convenience script
+./setup_venv.sh
 
-# Git
-gs              # git status
-ga              # git add
-gc              # git commit
-gp              # git push
-gl              # git pull
-gd              # git diff
-
-# Projeto
-rundev          # uvicorn main:app --reload
-runprod         # python main.py
-test            # pytest -v
-testcov         # pytest com coverage
-lint            # flake8 + pylint
-format          # black + isort
-typecheck       # mypy
-security        # bandit + safety
+# Or manually
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Funções Especiais
+### 3. Configure Environment
+
 ```bash
-project_status  # Mostrar status do projeto
-reload          # Recarregar configurações do shell
+# Copy and edit environment file
+cp .env.example .env
+# Edit .env with your actual credentials
 ```
 
-## 🔧 **Configuração Automática**
+### 4. Start Development
 
-### **Scripts de Inicialização**
+```bash
+# Run development server
+make dev
 
-#### `post-create.sh`
-Executado uma vez após a criação do container:
-- Instala dependências do sistema
-- Configura Python e ferramentas de desenvolvimento
-- Instala dependências do projeto
-- Configura pre-commit hooks
-- Cria configurações do VS Code
-- Configura aliases e funções úteis
+# Or manually
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-#### `post-start.sh`
-Executado a cada inicialização do container:
-- Ativa ambiente virtual
-- Verifica configurações
-- Mostra status do projeto
-- Exibe comandos úteis
+## Available Commands
 
-### **Portas Configuradas**
-- **8000** - FastAPI Application (principal)
-- **8080** - Servidor web alternativo
-- **3000** - Desenvolvimento frontend
-- **5000** - Flask/Debug server
+The container includes several helpful commands via the Makefile:
 
-### **Volumes e Mounts**
-- Workspace completo montado
-- Dotfiles personalizados
-- Cache do Git e Python persistente
+```bash
+make help          # Show all available commands
+make install       # Install dependencies
+make install-dev   # Install in development mode
+make setup-venv    # Create virtual environment
+make test          # Run tests
+make lint          # Run linting
+make format        # Format code
+make typecheck     # Run type checking
+make security      # Run security checks
+make clean         # Clean cache files
+make run           # Run production server
+make dev           # Run development server
+make reinstall     # Clean and reinstall dependencies
+```
 
-## 🛠️ **Configurações do VS Code**
+## Troubleshooting
 
-### **Debugging**
-- Configuração para FastAPI
-- Debug de arquivo atual
-- Debug de testes pytest
+### Dependency Installation Issues
 
-### **Tasks**
-- Instalar dependências
-- Executar testes
-- Formatar código
-- Linting e type checking
-- Executar servidor de desenvolvimento
+If you encounter dependency conflicts:
 
-### **Settings**
-- Formatação automática com Black
-- Organizacão automática de imports
-- Linting habilitado
-- Type checking configurado
-- Exclusões apropriadas de arquivos
+1. **Clear pip cache:**
+   ```bash
+   pip cache purge
+   ```
 
-## 🔐 **Segurança**
+2. **Clean and reinstall:**
+   ```bash
+   make clean
+   make reinstall
+   ```
 
-### **Pre-commit Hooks**
-- Formatação de código
-- Linting
-- Verificação de segurança
-- Validação de arquivos
+3. **Check Python version:**
+   ```bash
+   python --version  # Should be Python 3.11
+   ```
 
-### **Ferramentas de Segurança**
-- **Bandit** - Análise de segurança Python
-- **Safety** - Verificação de vulnerabilidades
-- **Validação** de webhooks e assinaturas
+4. **Update pip:**
+   ```bash
+   pip install --upgrade pip setuptools wheel
+   ```
 
-## 📚 **Como Usar**
+### Virtual Environment Issues
 
-### **1. Abrir no DevContainer**
-1. Abra o projeto no VS Code
-2. Clique em "Reopen in Container" quando solicitado
-3. Ou use `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+If virtual environment activation fails:
 
-### **2. Configurar Ambiente**
-1. Edite o arquivo `.env` com suas credenciais
-2. Execute `make install` para instalar dependências
-3. Execute `make dev` para iniciar o servidor
+```bash
+# Remove existing virtual environment
+rm -rf .venv
 
-### **3. Desenvolvimento**
-1. Use `make help` para ver comandos disponíveis
-2. Use `project_status` para verificar o status
-3. Aproveite as funcionalidades automáticas do VS Code
+# Create new one
+./setup_venv.sh
+```
 
-## 🎉 **Benefícios**
+### Container Permission Issues
 
-### **✅ Ambiente Consistente**
-- Mesmo ambiente para toda a equipe
-- Dependências versionadas
-- Configurações padronizadas
+If you encounter permission issues:
 
-### **✅ Produtividade**
-- Aliases e comandos úteis
-- Debugging configurado
-- Formatação automática
-- Linting em tempo real
+```bash
+# Fix ownership (run as root if needed)
+sudo chown -R vscode:vscode /workspaces/intercom-msteams-integration
+```
 
-### **✅ Qualidade de Código**
-- Pre-commit hooks
-- Testes automatizados
-- Verificações de segurança
-- Type checking
+## Development Tools
 
-### **✅ Integração GitHub**
-- GitHub CLI configurado
-- Extensions para Pull Requests
-- GitHub Actions support
-- GitLens para análise de código
+The container includes:
 
-## 🔄 **Customização**
+- **Python 3.11** with pip, setuptools, wheel
+- **Code Quality:** black, isort, flake8, pylint, mypy, ruff
+- **Testing:** pytest, pytest-asyncio, pytest-cov
+- **Security:** bandit, safety
+- **Git Tools:** git, GitHub CLI (gh)
+- **Development:** pre-commit hooks, VS Code extensions
+- **Utilities:** curl, wget, jq, tree, htop
 
-Para personalizar o ambiente:
+## VS Code Integration
 
-1. **Adicionar extensões:** Edite `devcontainer.json`
-2. **Modificar aliases:** Edite arquivos em `dotfiles/`
-3. **Adicionar ferramentas:** Edite `post-create.sh`
-4. **Configurar VS Code:** Edite seção `customizations`
+The container automatically configures:
 
-## 📞 **Suporte**
+- Python interpreter settings
+- Linting and formatting on save
+- Debug configurations
+- Task runners
+- Extension recommendations
 
-Se você encontrar problemas:
-1. Verifique os logs do container
-2. Execute `project_status` para diagnóstico
-3. Reconstrua o container se necessário
-4. Consulte a documentação do DevContainers
+## Environment Variables
 
----
+Required environment variables (set in `.env`):
 
-**Desenvolvido com ❤️ para máxima produtividade em Python!** 🚀
+```env
+AZURE_CLIENT_ID=your-client-id
+AZURE_CLIENT_SECRET=your-client-secret
+AZURE_TENANT_ID=your-tenant-id
+INTERCOM_ACCESS_TOKEN=your-access-token
+INTERCOM_WEBHOOK_SECRET=your-webhook-secret
+DEFAULT_TEAM_ID=your-team-id
+DEBUG=true
+```
+
+## Port Forwarding
+
+The container automatically forwards these ports:
+
+- **8000**: FastAPI Application (main)
+- **8080**: Alternative Web Server
+- **3000**: Frontend Development
+- **5000**: Flask/Debug Server
+
+## Support
+
+For issues with the development container:
+
+1. Check the container logs
+2. Rebuild the container: `Ctrl+Shift+P` → "Dev Containers: Rebuild Container"
+3. Check the troubleshooting section above
+4. Consult the project documentation
+
+## Container Features
+
+This container includes these dev container features:
+
+- **GitHub CLI**: Pre-configured for GitHub integration
+- **Docker-in-Docker**: For container development within the container
+- **Git**: Latest version for version control
+- **Common Utils**: ZSH, Oh My ZSH, and useful utilities
+
+Happy coding! 🚀

@@ -1,0 +1,37 @@
+{
+    "teams": [
+        {
+            "id": "example-team-id-1",
+            "name": "Equipe de Desenvolvimento",
+            "channels": [
+                {
+                    "id": "example-channel-id-1",
+                    "name": "customer-support",
+                    "description": "Canal para suporte ao cliente automatizado"
+                },
+                {
+                    "id": "example-channel-id-2",
+                    "name": "alerts",
+                    "description": "Canal para alertas do sistema"
+                }
+            ]
+        },
+        {
+            "id": "example-team-id-2",
+            "name": "Equipe de Suporte",
+            "channels": [
+                {
+                    "id": "example-channel-id-3",
+                    "name": "customer-support",
+                    "description": "Canal principal de suporte"
+                }
+            ]
+        }
+    ],
+    "default_settings": {
+        "auto_create_channels": true,
+        "channel_prefix": "intercom-",
+        "message_format": "html",
+        "webhook_retry_attempts": 3
+    }
+}

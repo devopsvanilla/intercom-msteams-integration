@@ -45,7 +45,7 @@ fi
 if [ -f "requirements.txt" ]; then
     echo "📦 Checking Python dependencies..."
     pip list --quiet > /tmp/installed_packages.txt
-    
+
     # Check if key packages are installed
     if ! grep -q "fastapi" /tmp/installed_packages.txt; then
         echo "⚠️  Some dependencies might be missing. Run 'make install' to install them."

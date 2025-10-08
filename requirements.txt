@@ -25,4 +25,4 @@ pytest-asyncio==0.21.1
 httpx==0.25.2
 
 # Security
-cryptography==41.0.8
+cryptography>=42.0.0,<47.0.0

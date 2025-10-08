@@ -73,7 +73,7 @@ function App() {
       <div className="container">
         <h1>Intercom-Teams Integration Config</h1>
         <p className="subtitle">Configure your integration settings</p>
-        
+
         {message.text && (
           <div className={`message ${message.type}`}>
             {message.text}

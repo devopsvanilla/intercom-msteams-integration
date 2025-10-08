@@ -81,28 +81,28 @@ PS1='\[\033[36m\][Teams-Intercom]\[\033[0m\] '$PS1
 function project_status() {
     echo "🚀 Teams-Intercom Integration Status:"
     echo ""
-    
+
     # Check if virtual environment is active
     if [[ -n "$VIRTUAL_ENV" ]]; then
         echo "✅ Virtual environment: $(basename $VIRTUAL_ENV)"
     else
         echo "❌ Virtual environment: Not activated"
     fi
-    
+
     # Check if .env file exists
     if [[ -f ".env" ]]; then
         echo "✅ Environment file: Found"
     else
         echo "❌ Environment file: Not found (.env)"
     fi
-    
+
     # Check if dependencies are installed
     if python -c "import fastapi" 2>/dev/null; then
         echo "✅ Dependencies: Installed"
     else
         echo "❌ Dependencies: Not installed"
     fi
-    
+
     # Check git status
     if git rev-parse --git-dir > /dev/null 2>&1; then
         echo "✅ Git repository: $(git branch --show-current)"
@@ -113,7 +113,7 @@ function project_status() {
             echo "✅ Working directory: Clean"
         fi
     fi
-    
+
     echo ""
 }
 
