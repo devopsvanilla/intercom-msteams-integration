@@ -1,6 +1,6 @@
 {
 	"name": "Teams-Intercom Integration Development",
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
 
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
@@ -57,7 +57,8 @@
 				"davidanson.vscode-markdownlint",
 				"shd101wyy.markdown-preview-enhanced",
 				"ms-azuretools.vscode-azure-github-copilot",
-				"ms-vscode.makefile-tools"
+				"ms-vscode.makefile-tools",
+				"onlyutkarsh.git-config-user-profiles"
 			],
 
 			"settings": {
@@ -80,7 +81,7 @@
 					"source.fixAll.eslint": "explicit"
 				},
 				"[python]": {
-					"editor.defaultFormatter": "ms-python.black-formatter",
+				"editor.defaultFormatter": "ms-python.python",
 					"editor.formatOnSave": true,
 					"editor.codeActionsOnSave": {
 						"source.organizeImports": "explicit"
@@ -91,7 +92,7 @@
 				},
 				"black-formatter.args": [
 					"--line-length=88",
-					"--target-version=py311"
+					"--target-version=py312"
 				],
 				"isort.args": [
 					"--profile=black",
@@ -132,7 +133,7 @@
 					"suppressLineUncommittedWarning": true,
 					"suppressNoRepositoryWarning": true
 				},
-				"terminal.integrated.defaultProfile.linux": "zsh",
+			"terminal.integrated.defaultProfile.linux": "bash",
 				"terminal.integrated.profiles.linux": {
 					"zsh": {
 						"path": "/bin/zsh"
@@ -188,14 +189,23 @@
 		}
 	},
 
-	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"postCreateCommand": "bash .devcontainer/post-create.sh && chmod 700 ~/.ssh ~/.gnupg 2>/dev/null && chmod 600 ~/.ssh/* ~/.gnupg/* 2>/dev/null || true",
 	"postStartCommand": "bash .devcontainer/post-start.sh",
 
 	"remoteUser": "vscode",
 	"containerUser": "vscode",
 
 	"mounts": [
-		"source=${localWorkspaceFolder}/.devcontainer/dotfiles,target=/home/vscode/.dotfiles,type=bind,consistency=cached"
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		"source=${localWorkspaceFolder}/.devcontainer/dotfiles,target=/home/vscode/.dotfiles,type=bind,consistency=cached",
+		// GitHub CLI config e autenticação
+		"source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
+		// Git config global
+		"source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+		// SSH keys (para Git over SSH)
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+		// GPG keys e config
+		"source=${localEnv:HOME}/.gnupg,target=/home/vscode/.gnupg,type=bind,consistency=cached"
 	],
 
 	"remoteEnv": {
@@ -203,6 +213,11 @@
 		"PYTHON_ENV": "development",
 		"DEBIAN_FRONTEND": "noninteractive",
 		"PIP_DISABLE_PIP_VERSION_CHECK": "1",
-		"PIP_NO_CACHE_DIR": "1"
+		"PIP_NO_CACHE_DIR": "1",
+		// Preservar variáveis de ambiente Git importantes
+		"GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",
+		"GIT_AUTHOR_EMAIL": "${localEnv:GIT_AUTHOR_EMAIL}",
+		"GIT_COMMITTER_NAME": "${localEnv:GIT_COMMITTER_NAME}",
+		"GIT_COMMITTER_EMAIL": "${localEnv:GIT_COMMITTER_EMAIL}"
 	}
 }

@@ -627,6 +627,11 @@ echo "✅ Post-create setup completed successfully!"
 echo ""
 echo "🎉 Your Teams-Intercom Integration development environment is ready!"
 echo ""
+
+# Executar verificação de configurações herdadas
+echo "🔍 Verificando configurações herdadas do host..."
+bash .devcontainer/check-config.sh
+
 echo "Available commands:"
 echo "  - make help    : Show all available commands"
 echo "  - make dev     : Run development server"
