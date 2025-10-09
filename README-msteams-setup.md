@@ -69,34 +69,32 @@ Este guia detalha como configurar a integração entre Microsoft Teams e Interco
    - Vá para **API permissions**
    - Clique em **Add a permission**
    - Selecione **Microsoft Graph**
-   - Escolha **Application permissions** para bot/daemon apps:
+   - Escolha **Delegated permissions**
 
-   **Permissões Necessárias:**
-
-   ```text
-   ✅ User.Read.All
-   ✅ Team.ReadBasic.All
-   ✅ TeamMember.Read.All
-   ✅ Channel.ReadBasic.All
-   ✅ ChannelMessage.Send
-   ✅ TeamSettings.ReadWrite.All
-   ✅ Directory.Read.All
-   ```
-
-   **Alternativa com Delegated permissions (se necessário):**
+   **Permissões Necessárias para a Integração:**
 
    ```text
-   ✅ User.Read
-   ✅ Team.ReadWrite.All
-   ✅ Channel.ReadWrite.All
-   ✅ Chat.ReadWrite
-   ✅ ChannelMessage.Send
+   ✅ ChannelMessage.Send (enviar mensagens em canais)
+   ✅ ChannelMessage.Read.All (ler mensagens dos canais)
+   ✅ Team.ReadBasic.All (listar teams disponíveis)
+   ✅ Channel.ReadBasic.All (listar canais dos teams)
+   ✅ User.Read (perfil do usuário autenticado)
    ```
+
+   **Como adicionar cada permissão:**
+   - Clique em **Add a permission** > **Microsoft Graph** > **Delegated permissions**
+   - Use a busca para encontrar cada permissão da lista
+   - Marque a permissão e clique **Add permissions**
+   - Repita para todas as permissões necessárias
 
 2. **Grant Admin Consent**
-   - Após adicionar as permissões, clique em **Grant admin consent for [sua organização]**
+   - Após adicionar todas as permissões, clique em **Grant admin consent for [sua organização]**
    - Confirme clicando em **Yes**
-   - Verifique se todas as permissões mostram status **✅ Granted**
+   - **Verifique o status**: Todas as permissões devem mostrar **Status: Sim**
+
+3. **Verificação Final**
+   - Na lista de permissões, confirme que todas aparecem com **Status: Sim**
+   - Especialmente importante: `ChannelMessage.Send` deve estar presente e ativa
 
 ### 1.4 Configurar Authentication (Opcional)
 
@@ -386,33 +384,33 @@ Para receber mensagens do Teams:
    Causas:
    - Client ID/Secret incorretos
    - Tenant ID errado
-   - Permissions não concedidas
+   - Credenciais de autenticação inválidas
 
    Solução:
    - Verificar credenciais no .env
-   - Re-grant admin consent
-   - Verificar tenant correto
+   - Confirmar Client ID e Tenant ID corretos
+   - Regenerar Client Secret se necessário
    ```
 
-2. **Erro 403 - Forbidden**
+2. **Erro 403 - Forbidden ao enviar mensagem**
 
    ```
    Causas:
-   - Falta de permissões Graph
-   - App não adicionado ao Team
-   - Tenant policy restrictions
+   - Permissões não concedidas pelo administrador
+   - App não autorizado no team/canal
+   - Usuário sem permissões suficientes
 
    Solução:
-   - Verificar API permissions
-   - Adicionar app aos teams necessários
-   - Revisar conditional access policies
+   - Verificar que admin consent foi concedido
+   - Confirmar que app está autorizado nos teams
+   - Verificar permissões do usuário autenticado
    ```
 
 3. **Erro 429 - Rate Limited**
 
    ```
    Causas:
-   - Muitas requests Graph API
+   - Muitas requests para Microsoft Graph API
    - Throttling da Microsoft
 
    Solução:
@@ -426,13 +424,26 @@ Para receber mensagens do Teams:
    ```
    Causas:
    - App não tem acesso aos teams
-   - User não é membro dos teams
-   - Permissions insuficientes
+   - Usuário não é membro dos teams
+   - Permissões insuficientes
 
    Solução:
-   - Adicionar app aos teams via admin
-   - Usar application permissions
-   - Verificar membership requirements
+   - Verificar permissões Team.ReadBasic.All
+   - Confirmar que usuário é membro dos teams
+   - Adicionar app aos teams necessários
+   ```
+
+5. **Permissões não aparecem no portal**
+
+   ```
+   Causas:
+   - Procurando na seção errada do portal
+   - Cache do navegador
+
+   Solução:
+   - Verificar seção "API permissions" do app registration
+   - Atualizar página do navegador
+   - Usar navegador em modo incógnito
    ```
 
 ### Logs e Debug
@@ -473,13 +484,33 @@ Para problemas específicos:
 
 - [ ] App registrado no Azure AD
 - [ ] Client Secret criado e copiado
-- [ ] Permissões Graph configuradas
-- [ ] Admin consent concedido
-- [ ] Arquivo .env configurado
+- [ ] Permissões Graph configuradas como **Delegated permissions**
+- [ ] **ChannelMessage.Send** adicionada e ativa
+- [ ] Admin consent concedido (**Status: Sim** em todas as permissões)
+- [ ] Arquivo .env configurado com todas as credenciais
 - [ ] Teste de health passou
 - [ ] Lista de teams funcionando
-- [ ] Mensagem de teste enviada
+- [ ] Mensagem de teste enviada com sucesso
 - [ ] Webhook Intercom funcionando
 - [ ] Logs e monitoramento configurados
+
+### 🔍 Verificação Final das Permissões
+
+Antes de prosseguir, confirme na tela de **API permissions** do Azure Portal:
+
+```text
+ChannelMessage.Send | Delegated | Send channel messages | Sim ✅
+ChannelMessage.Read.All | Delegated | Read user channel messages | Sim ✅
+Team.ReadBasic.All | Delegated | Read the names and descriptions of teams | Sim ✅
+Channel.ReadBasic.All | Delegated | Read the names and descriptions of channels | Sim ✅
+User.Read | Delegated | Sign in and read user profile | Sim ✅
+```
+
+**Se alguma permissão mostrar Status "Não":**
+
+1. Clique em "Grant admin consent for [Tenant]"
+2. Aguarde alguns minutos para propagação
+3. Recarregue a página do Azure Portal
+4. Verifique que todas mudaram para "Sim"
 
 **🎉 Sua integração Teams-Intercom está pronta para uso!**
