@@ -194,17 +194,12 @@
 
 	"remoteUser": "vscode",
 	"containerUser": "vscode",
-
 	"mounts": [
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
 		"source=${localWorkspaceFolder}/.devcontainer/dotfiles,target=/home/vscode/.dotfiles,type=bind,consistency=cached",
-		// GitHub CLI config e autenticação
 		"source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached",
-		// Git config global
 		"source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
-		// SSH keys (para Git over SSH)
 		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-		// GPG keys e config
 		"source=${localEnv:HOME}/.gnupg,target=/home/vscode/.gnupg,type=bind,consistency=cached"
 	],
 
@@ -214,7 +209,6 @@
 		"DEBIAN_FRONTEND": "noninteractive",
 		"PIP_DISABLE_PIP_VERSION_CHECK": "1",
 		"PIP_NO_CACHE_DIR": "1",
-		// Preservar variáveis de ambiente Git importantes
 		"GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",
 		"GIT_AUTHOR_EMAIL": "${localEnv:GIT_AUTHOR_EMAIL}",
 		"GIT_COMMITTER_NAME": "${localEnv:GIT_COMMITTER_NAME}",
