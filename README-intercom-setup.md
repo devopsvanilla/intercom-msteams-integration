@@ -116,34 +116,87 @@ Este guia detalha como configurar o Intercom para permitir que a aplicação Tea
      ✅ conversation.admin.opened
 
      Contact events:
-     ✅ contact.created
-     ✅ contact.signed_up
-
-     User events:
-     ✅ user.created
-     ✅ user.signed_up
+     ✅ contact.user.created (when a User contact is created)
+     ✅ contact.lead.created (when a Lead contact is created)
+     ✅ contact.lead.signed_up (when a Lead converts to User)
+     ✅ visitor.signed_up (when a Visitor converts to User)
      ```
 
 ### 3.2 Configurar Webhook Secret
 
-1. **Gerar Secret**
-   - Na configuração do webhook, clique em **"Generate secret"**
-   - **⚠️ IMPORTANTE**: Copie o secret (usado para verificação de assinatura)
+**⚠️ IMPORTANTE**: O webhook secret é essencial para validar que os webhooks recebidos realmente vêm do Intercom.
 
-     ```text
-     Secret format: whsec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-     ```
+#### Opção 1: Secret na Página do Webhook Individual
 
-2. **Adicionar ao .env**
+1. **Após criar o webhook**
+   - Depois de clicar em "Create webhook", você pode ser direcionado para a página de configuração
+   - Procure por uma seção **"Secret"**, **"Webhook Secret"** ou **"Security"**
+
+2. **Gerar Secret (se disponível)**
+   - Clique em **"Generate secret"** ou **"Create secret"**
+   - **⚠️ CRÍTICO**: Copie o secret imediatamente - só aparece uma vez!
+
+#### Opção 2: Secret Automático ou Não Disponível
+
+Se não encontrar a opção de gerar secret:
+
+1. **Verificar se já existe um secret**
+   - Alguns webhooks do Intercom podem vir com secret pré-gerado
+   - Verifique se há um campo com valor similar a: `whsec_...`
+
+2. **Secret pode estar oculto**
+   - Em algumas versões da interface, o secret só aparece após salvar o webhook
+   - Retorne à lista de webhooks e clique no webhook criado para editá-lo
+
+#### Configuração no Projeto
+
+1. **Adicionar ao .env**
 
    ```env
+   # Se você obteve um secret:
    INTERCOM_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+   # Se NÃO conseguiu obter um secret, deixe vazio por enquanto:
+   INTERCOM_WEBHOOK_SECRET=
    ```
 
-### 3.3 Salvar Webhook
+2. **Verificação de segurança**
 
-- Clique em **"Create webhook"**
-- O webhook será ativado automaticamente
+   ```python
+   # A aplicação pode funcionar sem secret, mas com menos segurança
+   # Recomendamos sempre tentar obter o secret para validação adequada
+   ```
+
+#### 🔍 Troubleshooting do Webhook Secret
+
+**Se não conseguir encontrar o secret:**
+
+- ✅ **Teste sem secret primeiro**: A aplicação funcionará, mas sem validação de assinatura
+- ✅ **Contate suporte Intercom**: Para contas enterprise, o secret pode estar em local diferente
+- ✅ **Verifique documentação atualizada**: [Intercom Webhook Docs](https://developers.intercom.com/building-apps/docs/setting-up-webhooks)
+
+**💡 Dica**: Você pode testar a integração sem o secret inicialmente e adicioná-lo depois quando encontrar na interface.
+
+### 3.3 Finalizar Configuração do Webhook
+
+1. **Salvar Webhook**
+   - Clique em **"Create webhook"** ou **"Save webhook"**
+   - O webhook será ativado automaticamente
+
+2. **Verificar Status**
+   - Após salvar, verifique se o status aparece como **"Active"** ou **"Enabled"**
+   - Anote o **ID do webhook** (pode ser útil para troubleshooting)
+
+3. **Testar Conectividade** (Opcional)
+   - Algumas interfaces oferecem um botão **"Test webhook"** ou **"Send test event"**
+   - Use essa opção para verificar se sua URL está acessível
+
+**🎯 Checkpoint**: Neste ponto você deve ter:
+
+- ✅ Webhook criado e ativo
+- ✅ URL configurada corretamente
+- ✅ Eventos selecionados
+- ✅ Secret copiado (se disponível) ou configurado como vazio
 
 ---
 
@@ -238,9 +291,9 @@ Este guia detalha como configurar o Intercom para permitir que a aplicação Tea
 1. **Simular Evento**
 
    ```bash
-   curl -X POST http://localhost:8000/webhooks/intercom \
+     curl -X POST https://seu-webhook-url.ngrok.io/webhook \
      -H "Content-Type: application/json" \
-     -H "X-Hub-Signature-256: sha256=HASH-CALCULADO" \
+     -H "X-Hub-Signature: sha1=HASH-CALCULADO" \
      -d '{
        "topic": "conversation.user.created",
        "data": {
@@ -256,6 +309,127 @@ Este guia detalha como configurar o Intercom para permitir que a aplicação Tea
          }
        }
      }'
+
+2. **Teste evento de criação de contato usuário:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature: sha1=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.user.created",
+       "data": {
+         "item": {
+           "id": "contact123",
+           "name": "João Silva",
+           "email": "joao@empresa.com",
+           "role": "user"
+         }
+       }
+     }'
+   ```
+
+3. **Teste evento de criação de lead:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature: sha1=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.lead.created",
+       "data": {
+         "item": {
+           "id": "lead456",
+           "name": "Maria Santos",
+           "email": "maria@exemplo.com",
+           "role": "lead"
+         }
+       }
+     }'
+   ```
+
+4. **Teste evento de conversão de lead:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature: sha1=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.lead.signed_up",
+       "data": {
+         "item": {
+           "id": "contact789",
+           "name": "Pedro Costa",
+           "email": "pedro@exemplo.com",
+           "role": "user"
+         }
+       }
+     }'2. **Teste evento de criação de contato usuário:**
+   }'
+
+2. **Teste evento de criação de contato usuário:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature-256: sha256=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.user.created",
+       "data": {
+         "item": {
+           "id": "contact123",
+           "name": "João Silva",
+           "email": "joao@empresa.com",
+           "role": "user"
+         }
+       }
+     }'
+   ```
+
+3. **Teste evento de criação de lead:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature-256: sha256=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.lead.created",
+       "data": {
+         "item": {
+           "id": "lead456",
+           "name": "Maria Santos",
+           "email": "maria@exemplo.com",
+           "role": "lead"
+         }
+       }
+     }'
+   ```
+
+4. **Teste evento de conversão de lead:**
+
+   ```bash
+   curl -X POST https://seu-webhook-url.ngrok.io/webhook \
+     -H "Content-Type: application/json" \
+     -H "X-Hub-Signature-256: sha256=HASH-CALCULADO" \
+     -d '{
+       "topic": "contact.lead.signed_up",
+       "data": {
+         "item": {
+           "id": "contact789",
+           "name": "Pedro Costa",
+           "email": "pedro@exemplo.com",
+           "role": "user"
+         }
+       }
+     }'
+   ```
+
+5. **Verificar Logs**
+
+5. **Verificar Logs**
+
+   Após enviar um webhook de teste, verifique os logs da aplicação:
+
    ```
 
 2. **Verificar Logs**

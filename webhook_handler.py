@@ -49,13 +49,13 @@ class WebhookHandler:
             return True
 
         try:
-            # Remove 'sha256=' prefix if present
-            if signature.startswith("sha256="):
-                signature = signature[7:]
+            # Remove 'sha1=' prefix if present (Intercom uses SHA-1)
+            if signature.startswith("sha1="):
+                signature = signature[5:]
 
-            # Calculate expected signature
+            # Calculate expected signature using SHA-1 (as per Intercom documentation)
             expected_signature = hmac.new(
-                self.webhook_secret.encode("utf-8"), payload, hashlib.sha256
+                self.webhook_secret.encode("utf-8"), payload, hashlib.sha1
             ).hexdigest()
 
             # Compare signatures
@@ -97,6 +97,14 @@ class WebhookHandler:
                 return await self._handle_conversation_assigned(data)
             elif event_type == "conversation.admin.closed":
                 return await self._handle_conversation_closed(data)
+            elif event_type == "contact.user.created":
+                return await self._handle_contact_user_created(data)
+            elif event_type == "contact.lead.created":
+                return await self._handle_contact_lead_created(data)
+            elif event_type == "contact.lead.signed_up":
+                return await self._handle_lead_signed_up(data)
+            elif event_type == "visitor.signed_up":
+                return await self._handle_visitor_signed_up(data)
             else:
                 logger.info(f"Unhandled event type: {event_type}")
                 return {"status": "ignored", "event_type": event_type}
@@ -379,4 +387,228 @@ class WebhookHandler:
 
         except Exception as e:
             logger.error(f"Error handling conversation closure: {str(e)}")
+            raise
+
+    async def _handle_contact_user_created(
+        self, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Handle new user contact created event.
+
+        Args:
+            data (Dict): Event data
+
+        Returns:
+            Dict: Processing result
+        """
+        try:
+            contact = data.get("data", {}).get("item", {})
+            contact_id = contact.get("id")
+            contact_name = contact.get("name", "Unknown User")
+            contact_email = contact.get("email", "No email")
+
+            # Create Teams notification
+            teams_message = f"""
+👤 **New User Contact Created**
+
+**Name:** {contact_name}
+**Email:** {contact_email}
+**Contact ID:** {contact_id}
+**Created:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+[View in Intercom](https://app.intercom.com/a/apps/contacts/{contact_id})
+"""
+
+            # Send to Teams
+            if config.default_team_id:
+                channel = await self.graph_client.find_or_create_channel(
+                    config.default_team_id,
+                    config.default_channel_name,
+                    "Customer support inquiries from Intercom",
+                )
+
+                await self.graph_client.send_message(
+                    config.default_team_id, channel["id"], teams_message, "html"
+                )
+
+                logger.info(
+                    f"Sent new user contact notification to Teams for {contact_id}"
+                )
+
+            return {
+                "status": "success",
+                "action": "contact_user_created_notification",
+                "contact_id": contact_id,
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling contact user created: {str(e)}")
+            raise
+
+    async def _handle_contact_lead_created(
+        self, data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Handle new lead contact created event.
+
+        Args:
+            data (Dict): Event data
+
+        Returns:
+            Dict: Processing result
+        """
+        try:
+            contact = data.get("data", {}).get("item", {})
+            contact_id = contact.get("id")
+            contact_name = contact.get("name", "Unknown Lead")
+            contact_email = contact.get("email", "No email")
+
+            # Create Teams notification
+            teams_message = f"""
+🎯 **New Lead Contact Created**
+
+**Name:** {contact_name}
+**Email:** {contact_email}
+**Contact ID:** {contact_id}
+**Created:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+[View in Intercom](https://app.intercom.com/a/apps/contacts/{contact_id})
+"""
+
+            # Send to Teams
+            if config.default_team_id:
+                channel = await self.graph_client.find_or_create_channel(
+                    config.default_team_id,
+                    config.default_channel_name,
+                    "Customer support inquiries from Intercom",
+                )
+
+                await self.graph_client.send_message(
+                    config.default_team_id, channel["id"], teams_message, "html"
+                )
+
+                logger.info(
+                    f"Sent new lead contact notification to Teams for {contact_id}"
+                )
+
+            return {
+                "status": "success",
+                "action": "contact_lead_created_notification",
+                "contact_id": contact_id,
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling contact lead created: {str(e)}")
+            raise
+
+    async def _handle_lead_signed_up(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Handle lead signed up (converted to user) event.
+
+        Args:
+            data (Dict): Event data
+
+        Returns:
+            Dict: Processing result
+        """
+        try:
+            contact = data.get("data", {}).get("item", {})
+            contact_id = contact.get("id")
+            contact_name = contact.get("name", "Unknown User")
+            contact_email = contact.get("email", "No email")
+
+            # Create Teams notification
+            teams_message = f"""
+🚀 **Lead Converted to User**
+
+**Name:** {contact_name}
+**Email:** {contact_email}
+**Contact ID:** {contact_id}
+**Converted:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+This lead has successfully signed up and become a user!
+
+[View in Intercom](https://app.intercom.com/a/apps/contacts/{contact_id})
+"""
+
+            # Send to Teams
+            if config.default_team_id:
+                channel = await self.graph_client.find_or_create_channel(
+                    config.default_team_id,
+                    config.default_channel_name,
+                    "Customer support inquiries from Intercom",
+                )
+
+                await self.graph_client.send_message(
+                    config.default_team_id, channel["id"], teams_message, "html"
+                )
+
+                logger.info(
+                    f"Sent lead conversion notification to Teams for {contact_id}"
+                )
+
+            return {
+                "status": "success",
+                "action": "lead_signed_up_notification",
+                "contact_id": contact_id,
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling lead signed up: {str(e)}")
+            raise
+
+    async def _handle_visitor_signed_up(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Handle visitor signed up (converted to user) event.
+
+        Args:
+            data (Dict): Event data
+
+        Returns:
+            Dict: Processing result
+        """
+        try:
+            contact = data.get("data", {}).get("item", {})
+            contact_id = contact.get("id")
+            contact_name = contact.get("name", "Unknown User")
+            contact_email = contact.get("email", "No email")
+
+            # Create Teams notification
+            teams_message = f"""
+🎉 **Visitor Converted to User**
+
+**Name:** {contact_name}
+**Email:** {contact_email}
+**Contact ID:** {contact_id}
+**Converted:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+A visitor has successfully signed up and become a user!
+
+[View in Intercom](https://app.intercom.com/a/apps/contacts/{contact_id})
+"""
+
+            # Send to Teams
+            if config.default_team_id:
+                channel = await self.graph_client.find_or_create_channel(
+                    config.default_team_id,
+                    config.default_channel_name,
+                    "Customer support inquiries from Intercom",
+                )
+
+                await self.graph_client.send_message(
+                    config.default_team_id, channel["id"], teams_message, "html"
+                )
+
+                logger.info(
+                    f"Sent visitor conversion notification to Teams for {contact_id}"
+                )
+
+            return {
+                "status": "success",
+                "action": "visitor_signed_up_notification",
+                "contact_id": contact_id,
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling visitor signed up: {str(e)}")
             raise

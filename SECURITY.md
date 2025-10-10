@@ -296,20 +296,200 @@ Incluir:
 - 🤝 Forneça detalhes suficientes para reprodução
 - 🤝 Evite acessar dados de produção
 
-## 🔧 Ferramentas de Segurança
+## 🔧 Ferramentas de Segurança e Pre-commit
 
-### Análise Estática
+### 🛠️ Pre-commit Hooks Implementados
+
+O projeto utiliza um conjunto abrangente de verificações automáticas de qualidade e segurança executadas antes de cada commit:
+
+#### **Verificações de Qualidade de Código**
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace      # Remove espaços em branco
+      - id: end-of-file-fixer       # Linha em branco no final
+      - id: check-yaml              # Valida sintaxe YAML
+      - id: check-json              # Valida sintaxe JSON
+      - id: check-added-large-files # Bloqueia arquivos grandes
+      - id: debug-statements        # Detecta debug prints
+      - id: check-merge-conflict    # Detecta conflitos merge
+```
+
+#### **Formatação e Linting**
+
+```yaml
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black                   # Formatação Python
+        language_version: python3.12
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort                   # Organização de imports
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8                  # Linting Python
+        args: [--max-line-length=88, --extend-ignore=E203]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.280
+    hooks:
+      - id: ruff                    # Linter moderno Python
+        args: [--fix, --exit-non-zero-on-fix]
+```
+
+#### **Análise de Segurança Automática**
+
+```yaml
+  - repo: local
+    hooks:
+      - id: bandit                  # Análise de segurança Python
+        name: bandit
+        entry: bandit
+        language: system
+        args: ['-r', '.']
+        types: [python]
+```
+
+### 🚀 Como Usar os Pre-commit Hooks
 
 ```bash
-# Security linting Python
+# 1. Instalar pre-commit (já incluído no dev container)
+pip install pre-commit
+
+# 2. Instalar hooks no repositório
+pre-commit install
+
+# 3. Executar todos os hooks manualmente
+pre-commit run --all-files
+
+# 4. Executar hook específico
+pre-commit run bandit --all-files
+pre-commit run black --all-files
+pre-commit run flake8 --all-files
+
+# 5. Bypass temporário (emergências apenas)
+git commit --no-verify -m "hotfix: emergency commit"
+
+# 6. Atualizar hooks para versões mais recentes
+pre-commit autoupdate
+```
+
+### 📊 Benefícios dos Pre-commit Tests
+
+#### **Qualidade Garantida**
+
+- ✅ **Formatação consistente**: Black formata automaticamente
+- ✅ **Imports organizados**: isort mantém ordem padrão
+- ✅ **Código limpo**: Flake8 + Ruff detectam problemas
+- ✅ **Sintaxe válida**: Verificação de YAML/JSON/TOML
+- ✅ **Sem debug prints**: Detecta `print()` esquecidos
+
+#### **Segurança Proativa**
+
+- ✅ **Vulnerabilidades detectadas**: Bandit análise estática
+- ✅ **Secrets protegidos**: Evita commit de credenciais
+- ✅ **Arquivos grandes bloqueados**: Previne commit acidental
+- ✅ **Conflitos detectados**: Evita commits com conflitos
+
+#### **Produtividade**
+
+- ✅ **Feedback imediato**: Erros detectados localmente
+- ✅ **Correção automática**: Muitos problemas corrigidos automaticamente
+- ✅ **CI/CD mais rápido**: Menos falhas no pipeline
+- ✅ **Code review focado**: Revisão em lógica, não estilo
+
+### 🔍 Relatórios de Segurança
+
+#### **Exemplo de Execução Bandit**
+
+```bash
+$ pre-commit run bandit --all-files
+
+bandit...................................................................Passed
+
+# Relatório detalhado
+$ bandit -r . -f json -o security-report.json
+```
+
+#### **Métricas de Qualidade**
+
+```bash
+# Relatório completo de qualidade
+$ pre-commit run --all-files
+
+trailing-whitespace..........................................Passed
+end-of-file-fixer................................................Passed
+check-yaml.......................................................Passed
+check-json.......................................................Passed
+check-added-large-files..........................................Passed
+debug-statements.................................................Passed
+check-merge-conflict.............................................Passed
+black................................................................Passed
+isort................................................................Passed
+flake8...............................................................Passed
+ruff.................................................................Passed
+bandit...............................................................Passed
+
+✅ Todos os 12 hooks passaram com sucesso!
+```
+
+### 🛡️ Configuração de Segurança do Bandit
+
+O projeto utiliza configuração customizada do Bandit para análise de segurança:
+
+```ini
+# .bandit
+[bandit]
+exclude_dirs = venv,tests,__pycache__,.git
+skips = B101,B104,B105
+```
+
+**Verificações Bandit Ativas:**
+
+- ✅ **B102**: `exec` usage detection
+- ✅ **B103**: File permissions (chmod)
+- ✅ **B106**: Hardcoded passwords
+- ✅ **B107**: Hardcoded sensitive URLs
+- ✅ **B108**: Temp file usage
+- ✅ **B201-B606**: SQL injection, XSS, crypto issues
+- ✅ **B701-B902**: Framework-specific vulnerabilities
+
+**Verificações Desabilitadas (Contexto Específico):**
+
+- ❌ **B101**: assert_used (usado em testes)
+- ❌ **B104**: hardcoded_bind_all_interfaces (config desenvolvimento)
+- ❌ **B105**: hardcoded_password_string (exemplos documentação)
+
+### 📈 Análise Estática Adicional
+
+```bash
+# Security linting Python (integrado no pre-commit)
 bandit -r . -f json -o security-report.json
 
-# Vulnerability scanning
+# Vulnerability scanning dependencies
 safety check --json
 
-# Dependency check
+# Dependency audit
 pip-audit --format=json
-```
+
+# Type checking
+mypy .
+
+# Code complexity
+radon cc . --average
+
+# Documentation coverage
+interrogate . --ignore-init-method
 
 ### Análise de Containers
 
@@ -350,15 +530,31 @@ journalctl -u docker | grep -i security
 - [Docker Security](https://docs.docker.com/engine/security/)
 - [GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories)
 
-## ✅ Security Checklist
+### ✅ Security Checklist
 
 ### Desenvolvimento
 
 - [ ] Secrets não hardcoded
 - [ ] .gitignore configurado corretamente
+- [ ] **Pre-commit hooks instalados**: `pre-commit install`
+- [ ] **Todos os hooks passando**: `pre-commit run --all-files`
+- [ ] **Bandit scan limpo**: Sem vulnerabilidades detectadas
+- [ ] **Formatação consistente**: Black + isort aplicados
 - [ ] Input validation implementada
 - [ ] Error handling seguro (sem vazamento de informações)
 - [ ] Logging sanitizado
+
+### Pre-commit Validation
+
+- [ ] **Trailing whitespace removido**: Arquivos limpos
+- [ ] **End-of-file fixer aplicado**: Linha em branco no final
+- [ ] **YAML/JSON válidos**: Sintaxe correta
+- [ ] **Sem arquivos grandes**: < 500KB por arquivo
+- [ ] **Sem debug statements**: `print()`, `pdb.set_trace()` removidos
+- [ ] **Conflitos resolvidos**: Sem markers de merge
+- [ ] **Imports organizados**: isort profile black
+- [ ] **Linting passando**: flake8 + ruff sem erros
+- [ ] **Segurança validada**: bandit sem vulnerabilidades
 
 ### Deploy
 
@@ -366,6 +562,7 @@ journalctl -u docker | grep -i security
 - [ ] Containers não-root
 - [ ] Network policies aplicadas
 - [ ] Secrets externalizados
+- [ ] **CI/CD hooks configurados**: Pre-commit em pipeline
 - [ ] Backup configurado
 - [ ] Monitoring ativo
 
@@ -375,7 +572,8 @@ journalctl -u docker | grep -i security
 - [ ] Rate limiting ativo
 - [ ] Health checks funcionando
 - [ ] Logs sendo coletados
-- [ ] Vulnerability scanning regular
+- [ ] **Vulnerability scanning regular**: Bandit + safety
+- [ ] **Dependency updates**: Renovate/Dependabot ativo
 - [ ] Incident response plan definido
 
 ---

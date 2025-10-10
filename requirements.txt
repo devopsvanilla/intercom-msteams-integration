@@ -26,3 +26,6 @@ httpx==0.25.2
 
 # Security
 cryptography>=42.0.0,<47.0.0
+
+# Pre-commit security tools dependencies
+pbr>=5.11.0

@@ -240,9 +240,15 @@ graph TB
   - Read/Write users e contacts
   - Read admins e teams
 - **Webhook** configurado para eventos:
-  - `conversation.user.created`
-  - `conversation.user.replied`
-  - `conversation.admin.replied`
+  - `conversation.user.created` (nova conversa criada por usuário)
+  - `conversation.user.replied` (usuário respondeu à conversa)
+  - `conversation.admin.replied` (admin respondeu à conversa)
+  - `conversation.admin.assigned` (conversa atribuída a admin)
+  - `conversation.admin.closed` (conversa fechada por admin)
+  - `contact.user.created` (novo contato usuário criado)
+  - `contact.lead.created` (novo lead criado)
+  - `contact.lead.signed_up` (lead convertido em usuário)
+  - `visitor.signed_up` (visitante convertido em usuário)
 
 ### Aplicação
 

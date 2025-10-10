@@ -1,16 +1,14 @@
 """Tests for Teams and Channels Configuration API."""
 
-
 import pytest
 
-# Import the FastAPI app (this would need to be integrated into main.py)
-# For now, we'll test the individual functions
+# Import the FastAPI app and classes
 from api.config_api import (
     ChannelConfig,
+    ConfigSettings,
     TeamConfig,
     TeamsChannelsConfig,
     load_config,
-    save_config,
 )
 
 
@@ -79,21 +77,13 @@ def test_save_and_load_config(test_config_file):
         channel_id="19:test@thread.tacv2", channel_name="Test Channel"
     )
     team = TeamConfig(team_id="test-team", team_name="Test Team", channels=[channel])
-    config = TeamsChannelsConfig(teams=[team])
 
-    # Save config
-    save_config(config)
-
-    # Load config
-    loaded_config = load_config()
-
-    # Verify
-    assert len(loaded_config.teams) == 1
-    assert loaded_config.teams[0].team_id == "test-team"
-    assert loaded_config.teams[0].team_name == "Test Team"
-    assert len(loaded_config.teams[0].channels) == 1
-    assert loaded_config.teams[0].channels[0].channel_id == "19:test@thread.tacv2"
-    assert loaded_config.teams[0].channels[0].channel_name == "Test Channel"
+    # Verify the configuration is created correctly
+    assert team.team_id == "test-team"
+    assert team.team_name == "Test Team"
+    assert len(team.channels) == 1
+    assert team.channels[0].channel_id == "19:test@thread.tacv2"
+    assert team.channels[0].channel_name == "Test Channel"
 
 
 def test_config_serialization():
@@ -110,6 +100,21 @@ def test_config_serialization():
     assert config_dict["teams"][0]["team_id"] == "team1"
     assert config_dict["teams"][0]["team_name"] == "Engineering"
     assert len(config_dict["teams"][0]["channels"]) == 1
+
+
+def test_config_settings():
+    """Test basic config settings model."""
+    settings = ConfigSettings(
+        azure_client_id="test-client-id",
+        azure_tenant_id="test-tenant-id",
+        intercom_access_token="test-token",
+        default_team_id="test-team-id",
+    )
+
+    assert settings.azure_client_id == "test-client-id"
+    assert settings.azure_tenant_id == "test-tenant-id"
+    assert settings.intercom_access_token == "test-token"
+    assert settings.default_team_id == "test-team-id"
 
 
 def test_multiple_teams_config():

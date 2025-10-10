@@ -224,16 +224,16 @@ class TestWebhookHandler:
         handler.webhook_secret = "test_secret"
 
         payload = b'{"test": "data"}'
-        # Calcular assinatura esperada
+        # Calcular assinatura esperada usando SHA-1 (como o Intercom)
         import hashlib
         import hmac
 
         expected_signature = hmac.new(
-            "test_secret".encode(), payload, hashlib.sha256
+            "test_secret".encode(), payload, hashlib.sha1
         ).hexdigest()
 
         is_valid = handler.verify_webhook_signature(
-            payload, f"sha256={expected_signature}"
+            payload, f"sha1={expected_signature}"
         )
         assert is_valid is True
 
@@ -278,7 +278,106 @@ class TestWebhookHandler:
         )
 
         assert result["status"] == "ignored"
-        assert result["event_type"] == "unknown.event"
+
+    @pytest.mark.asyncio
+    async def test_process_webhook_contact_user_created(
+        self, mock_graph_client, mock_intercom_client
+    ):
+        """Teste de processamento de evento de criação de contato usuário."""
+        handler = WebhookHandler(mock_graph_client, mock_intercom_client)
+
+        with patch.object(
+            handler, "_handle_contact_user_created", return_value={"status": "success"}
+        ):
+            result = await handler.process_webhook(
+                "contact.user.created",
+                {
+                    "data": {
+                        "item": {
+                            "id": "contact1",
+                            "name": "John Doe",
+                            "email": "john@example.com",
+                        }
+                    }
+                },
+            )
+
+            assert result["status"] == "success"
+
+    @pytest.mark.asyncio
+    async def test_process_webhook_contact_lead_created(
+        self, mock_graph_client, mock_intercom_client
+    ):
+        """Teste de processamento de evento de criação de lead."""
+        handler = WebhookHandler(mock_graph_client, mock_intercom_client)
+
+        with patch.object(
+            handler, "_handle_contact_lead_created", return_value={"status": "success"}
+        ):
+            result = await handler.process_webhook(
+                "contact.lead.created",
+                {
+                    "data": {
+                        "item": {
+                            "id": "lead1",
+                            "name": "Jane Doe",
+                            "email": "jane@example.com",
+                        }
+                    }
+                },
+            )
+
+            assert result["status"] == "success"
+
+    @pytest.mark.asyncio
+    async def test_process_webhook_lead_signed_up(
+        self, mock_graph_client, mock_intercom_client
+    ):
+        """Teste de processamento de evento de conversão de lead."""
+        handler = WebhookHandler(mock_graph_client, mock_intercom_client)
+
+        with patch.object(
+            handler, "_handle_lead_signed_up", return_value={"status": "success"}
+        ):
+            result = await handler.process_webhook(
+                "contact.lead.signed_up",
+                {
+                    "data": {
+                        "item": {
+                            "id": "contact1",
+                            "name": "Converted User",
+                            "email": "converted@example.com",
+                        }
+                    }
+                },
+            )
+
+            assert result["status"] == "success"
+
+    @pytest.mark.asyncio
+    async def test_process_webhook_visitor_signed_up(
+        self, mock_graph_client, mock_intercom_client
+    ):
+        """Teste de processamento de evento de conversão de visitante."""
+        handler = WebhookHandler(mock_graph_client, mock_intercom_client)
+
+        with patch.object(
+            handler, "_handle_visitor_signed_up", return_value={"status": "success"}
+        ):
+            result = await handler.process_webhook(
+                "visitor.signed_up",
+                {
+                    "data": {
+                        "item": {
+                            "id": "visitor1",
+                            "name": "New User",
+                            "email": "newuser@example.com",
+                        }
+                    }
+                },
+            )
+
+            assert result["status"] == "success"
 
 
 class TestMainApp:

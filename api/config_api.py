@@ -43,6 +43,20 @@ class TeamsChannelsConfig(BaseModel):
 router = APIRouter(prefix="/api/config", tags=["configuration"])
 
 
+def load_config() -> TeamsChannelsConfig:
+    """Load teams and channels configuration from JSON file."""
+    try:
+        if not TEAMS_CONFIG_FILE.exists():
+            return TeamsChannelsConfig(teams=[])
+
+        with open(TEAMS_CONFIG_FILE, "r") as f:
+            config_data = json.load(f)
+
+        return TeamsChannelsConfig(**config_data)
+    except Exception:
+        return TeamsChannelsConfig(teams=[])
+
+
 @app.get("/api/config")
 async def get_config():
     """Get current configuration settings from .env file"""
