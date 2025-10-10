@@ -5,6 +5,9 @@
 
 set -e
 
+echo "☁️ Installing Azure CLI..."
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 echo "🚀 Starting post-create setup for Teams-Intercom Integration..."
 
 # Update package lists
@@ -138,25 +141,7 @@ echo "ℹ️  Virtual environment can be created later with: ./setup_venv.sh"
 
 # Install project in development mode
 if [ -f "setup.py" ]; then
-    pip install -e .
-fi
 
-# Create useful aliases
-echo "🔗 Setting up aliases..."
-cat >> ~/.bashrc << 'EOF'
-
-# Project aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-
-# Python aliases
-alias py='python'
 alias pip='python -m pip'
 alias pytest='python -m pytest'
 alias black='python -m black'
@@ -176,7 +161,10 @@ alias gco='git checkout'
 
 # Project specific aliases
 alias rundev='uvicorn main:app --reload --host 0.0.0.0 --port 8000'
+
 alias runprod='python main.py'
+    echo "☁️ Installing Azure CLI..."
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 alias test='pytest -v'
 alias lint='flake8 . && pylint *.py'
 alias format='black . && isort .'
@@ -640,3 +628,21 @@ echo "  - make lint    : Run linting"
 echo "  - make format  : Format code"
 echo ""
 echo "Happy coding! 🚀"
+echo ""
+# Solicitar configuração do .env na primeira execução do devcontainer
+if [ ! -f ".env" ]; then
+    echo "🔐 Arquivo .env não encontrado. Copiando .env.example..."
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "📝 Edite o arquivo .env com suas credenciais Azure e Intercom."
+        if command -v code &>/dev/null; then
+            code .env
+        else
+            echo "Abra o arquivo .env manualmente no editor."
+        fi
+    else
+        echo "⚠️  Arquivo .env.example não encontrado. Crie .env manualmente."
+    fi
+else
+    echo "✅ Arquivo .env já existe."
+fi

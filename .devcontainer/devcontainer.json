@@ -58,7 +58,10 @@
 				"shd101wyy.markdown-preview-enhanced",
 				"ms-azuretools.vscode-azure-github-copilot",
 				"ms-vscode.makefile-tools",
-				"onlyutkarsh.git-config-user-profiles"
+				"onlyutkarsh.git-config-user-profiles",
+				"ms-azuretools.azure-dev",
+				"ms-azuretools.vscode-azureappservice",
+				"spmeesseman.vscode-taskexplorer"
 			],
 
 			"settings": {
