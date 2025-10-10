@@ -23,7 +23,7 @@ if [[ -n "$current_name" && -n "$current_email" ]]; then
         export GIT_COMMITTER_NAME="$current_name"
         export GIT_COMMITTER_EMAIL="$current_email"
         echo "✅ Configuração mantida!"
-        exit 0
+        return 0
     fi
 fi
 
@@ -61,7 +61,7 @@ echo "Confirma essas configurações? (S/n)"
 read -r confirm
 if [[ "$confirm" =~ ^[Nn]$ ]]; then
     echo "❌ Configuração cancelada!"
-    exit 1
+    return 1
 fi
 
 # Definir variáveis de ambiente do Git

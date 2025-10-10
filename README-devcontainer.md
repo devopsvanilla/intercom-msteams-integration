@@ -275,36 +275,73 @@ password=seu-token-copiado"
 
 ### Erro "fatal: empty ident name (for <>) not allowed"
 
-Se você encontrar este erro ao fazer commit:
+Este é um problema comum em Dev Containers onde as variáveis de ambiente do Git estão vazias.
+
+**🎯 Solução Recomendada:**
 
 ```bash
-# Executar o script de configuração do Git (recomendado)
-./.devcontainer/git-config.sh
+# 1. Executar o script interativo de configuração
+source .devcontainer/git-config.sh
+```
 
-# O script irá solicitar:
-# - Seu nome completo
-# - Seu email (com validação automática)
-# - Confirmação das informações
+O script irá:
 
-# Ou configurar manualmente:
-export GIT_AUTHOR_NAME="Seu Nome"
+- ✅ **Detectar configuração existente** e perguntar se deseja mantê-la
+- ✅ **Solicitar informações** se necessário (nome e email)
+- ✅ **Validar formato do email** automaticamente
+- ✅ **Configurar todas as variáveis** necessárias (autor e committer)
+- ✅ **Aplicar configurações** locais e de ambiente
+
+**🔧 Solução Rápida (se já souber suas informações):**
+
+```bash
+# Configurar diretamente as variáveis de ambiente
+export GIT_AUTHOR_NAME="Seu Nome Completo"
 export GIT_AUTHOR_EMAIL="seu@email.com"
-export GIT_COMMITTER_NAME="Seu Nome"
+export GIT_COMMITTER_NAME="Seu Nome Completo"
 export GIT_COMMITTER_EMAIL="seu@email.com"
-git config user.name "Seu Nome"
+
+# Configurar Git localmente também
+git config user.name "Seu Nome Completo"
 git config user.email "seu@email.com"
 ```
 
-**Causa:** Variáveis de ambiente Git vazias no VS Code sobrescrevem as configurações locais.
+**📋 Para verificar se está configurado:**
 
-**Solução permanente:** Execute `./.devcontainer/git-config.sh` após abrir o container.
+```bash
+# Verificar configuração Git
+git config --get user.name
+git config --get user.email
 
-**Recursos do script:**
+# Verificar variáveis de ambiente
+echo "Autor: $GIT_AUTHOR_NAME <$GIT_AUTHOR_EMAIL>"
+echo "Committer: $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL>"
+```
 
-- ✅ Validação automática de email
-- ✅ Verificação de configuração existente
-- ✅ Confirmação antes de aplicar
-- ✅ Configuração de todas as variáveis necessárias
+**🚀 Configuração Automática (recomendado para uso frequente):**
+
+Adicione ao seu `~/.bashrc` ou `~/.zshrc` dentro do container:
+
+```bash
+# Executar script de configuração Git automaticamente
+if [ -f "/workspaces/intercom-msteams-integration/.devcontainer/git-config.sh" ]; then
+    source /workspaces/intercom-msteams-integration/.devcontainer/git-config.sh
+fi
+```
+
+**❓ Por que acontece:**
+
+- Dev Containers podem ter variáveis de ambiente Git vazias
+- VS Code/Git prioriza variáveis de ambiente sobre configuração local
+- O script resolve isso configurando ambos os métodos
+
+**✨ Recursos do script `.devcontainer/git-config.sh`:**
+
+- 🔍 Detecção automática de configuração existente
+- ✉️ Validação de formato de email
+- 🛡️ Confirmação antes de aplicar mudanças
+- 🔧 Configuração completa (config local + variáveis de ambiente)
+- 💾 Persistência para a sessão atual do container
 
 ### Reconstruir completamente
 
@@ -317,16 +354,16 @@ Ctrl+Shift+P → "Dev Containers: Rebuild Container Without Cache"
 
 ## 🎉 Próximos passos
 
-Após o setup:
+Após o setup do Dev Container:
 
-1. **✅ Verificar instalação:** `make test`
-2. **🔧 Configurar credenciais:** Editar `.env`
-3. **🚀 Iniciar desenvolvimento:** `make dev`
-4. **📚 Ler documentação:** Consultar outros READMEs do projeto
-5. **🤝 Configurar Git:** `git config --global user.name "Seu Nome"`
+1. **🔧 Configurar Git:** `source .devcontainer/git-config.sh` (essencial para commits)
+2. **✅ Verificar instalação:** `make test`
+3. **� Configurar credenciais:** Editar arquivo `.env`
+4. **🚀 Iniciar desenvolvimento:** `make dev`
+5. **📚 Ler documentação:** Consultar outros READMEs do projeto
 
 ---
 
 **🚀 Seu ambiente está pronto! Happy coding!**
 
-> **Dica:** Marque este README como favorito e compartilhe com a equipe. O Dev Container garante que todos terão exatamente o mesmo ambiente de desenvolvimento.
+> **💡 Dica importante:** Execute sempre `source .devcontainer/git-config.sh` ao abrir o Dev Container para evitar problemas de commit. O script é interativo e preserva configurações existentes.
