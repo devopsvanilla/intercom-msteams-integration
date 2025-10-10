@@ -273,6 +273,39 @@ password=seu-token-copiado"
 
 **Prevenção:** Sempre execute `gh auth setup-git` após mudar de conta.
 
+### Erro "fatal: empty ident name (for <>) not allowed"
+
+Se você encontrar este erro ao fazer commit:
+
+```bash
+# Executar o script de configuração do Git (recomendado)
+./.devcontainer/git-config.sh
+
+# O script irá solicitar:
+# - Seu nome completo
+# - Seu email (com validação automática)
+# - Confirmação das informações
+
+# Ou configurar manualmente:
+export GIT_AUTHOR_NAME="Seu Nome"
+export GIT_AUTHOR_EMAIL="seu@email.com"
+export GIT_COMMITTER_NAME="Seu Nome"
+export GIT_COMMITTER_EMAIL="seu@email.com"
+git config user.name "Seu Nome"
+git config user.email "seu@email.com"
+```
+
+**Causa:** Variáveis de ambiente Git vazias no VS Code sobrescrevem as configurações locais.
+
+**Solução permanente:** Execute `./.devcontainer/git-config.sh` após abrir o container.
+
+**Recursos do script:**
+
+- ✅ Validação automática de email
+- ✅ Verificação de configuração existente
+- ✅ Confirmação antes de aplicar
+- ✅ Configuração de todas as variáveis necessárias
+
 ### Reconstruir completamente
 
 ```bash
